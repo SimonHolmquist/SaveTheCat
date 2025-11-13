@@ -28,7 +28,7 @@ variables:
   azureAppServiceName: 'savethecat-prod-api-001'
   
   # Nombre de la Conexión de Servicio (la crearemos/autorizaremos en el siguiente paso)
-  azureSubscription: 'Azure-Subscription-Connection' 
+  azureSubscription: 'savethecat-sc' 
 
 # Fases del Pipeline
 stages:
