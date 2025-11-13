@@ -1,0 +1,1035 @@
+:root {
+    --toolbar-height: 48px;
+    --beatsheet-width: calc(100vw / 6);
+}
+
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: #242424; 
+}
+
+.app-toolbar {
+    height: var(--toolbar-height);
+    background: #f0f0f0; 
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    z-index: 20; 
+    flex-shrink: 0; 
+    box-sizing: border-box;
+}
+
+.app-content {
+    display: flex;
+    flex-grow: 1; 
+    height: calc(100vh - var(--toolbar-height));
+}
+
+
+.toolbar__group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.toolbar__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    font-size: 20px; 
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.toolbar__btn:hover {
+    border-color: #646cff;
+    background: #f9f9f9;
+}
+.toolbar__divider {
+    width: 1px;
+    height: 28px;
+    background: #ccc;
+    margin: 0 8px;
+}
+
+
+.palette {
+    gap: 4px;
+}
+.palette__color {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s;
+}
+.palette__color:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.palette__color:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+
+.board {
+    
+    flex-grow: 1; 
+    position: relative; 
+    overflow: hidden;
+    user-select: none;
+}
+
+
+.board__bg {
+    
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+
+.note {
+    position: absolute;
+    width: 8%;
+    aspect-ratio: 1 / 1;
+    
+    
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    
+    padding: 24px 12px 12px 12px;
+    transform: rotate(-1deg);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #000;
+    z-index: 2;
+    transition: box-shadow 0.2s, transform 0.2s; 
+}
+
+.note--selected {
+    box-shadow: 0 0 0 3px #000, 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 999; 
+    transform: rotate(0deg) scale(1.02);
+}
+
+.note--selected.note--dragging {
+    box-shadow: 0 0 0 3px #000, 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 1000; 
+    transform: rotate(0deg) scale(1.05);
+}
+
+
+.note--dragging {
+    cursor: grabbing;
+    z-index: 1000;
+    
+    transform: rotate(0deg) scale(1.05);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+
+.note--dragging .note__header {
+    cursor: grabbing;
+}
+
+
+
+.beat-sheet {
+    
+    width: var(--beatsheet-width);
+    height: 100%; 
+    background: #fff59d;
+    color: #000;
+    padding: 16px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0; 
+}
+
+
+.beat-sheet__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px; 
+}
+
+
+.beat-sheet__item[data-item-label="fecha"] {
+    margin-bottom: 12px; 
+    padding-bottom: 12px; 
+    border-bottom: 1px solid rgba(0,0,0,0.1); 
+}
+
+
+.beat-sheet__label {
+    font-weight: bold;
+    font-size: 13px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    white-space: nowrap; 
+}
+
+
+
+
+.beat-sheet__input {
+    width: 100%;
+    border-radius: 4px;
+    padding: 4px 6px;
+    color: #000;
+    font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    box-sizing: border-box; 
+    background: #f7ed98;
+    border: 1px solid rgba(0, 0, 0, 0.15);    
+    overflow-y: hidden;
+    resize: none;
+
+}
+
+
+.beat-sheet__input:focus {
+    background: #f7ed98; 
+    border: 1px solid rgba(0,0,0,0.2);
+    outline-color: #646cff; 
+}
+
+
+
+.board__divider {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 30px; 
+    background: #ffe082;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
+    
+    
+    z-index: 1; 
+    
+    
+    transform: translateY(-50%); 
+    
+    
+    pointer-events: none; 
+}
+
+
+.board__divider--1 {
+    top: 25%;
+}
+.board__divider--2 {
+    top: 50%;
+}
+.board__divider--3 {
+    top: 75%;
+}
+
+.note-counter {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    z-index: 3; 
+    user-select: none; 
+}
+
+.note__close-pin {
+    position: absolute;
+    top: -10px; 
+    left: 50%;
+    transform: translateX(-50%); 
+    width: 20px; 
+    aspect-ratio: 1 / 1;  
+    border-radius: 50%; 
+    background-color: #d32f2f; 
+    border: 2px solid #a00; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    cursor: pointer;
+    z-index: 3; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white; 
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+    opacity: 0; 
+    transition: opacity 0.2s, background-color 0.2s, transform 0.2s;
+}
+
+.note:hover .note__close-pin,
+.note--dragging .note__close-pin {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px); 
+}
+
+.note__close-pin:hover {
+    background-color: #e53935; 
+    transform: translateX(-50%) translateY(-4px) scale(1.1); 
+}
+
+
+.note__drag-area {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: grab; 
+    z-index: 1; 
+}
+
+.note--dragging .note__drag-area {
+    cursor: grabbing;
+}
+
+
+
+
+
+.note__textarea {
+    width: 100%;
+    border-radius: 4px;
+    padding: 4px 6px;
+    color: #000;
+    font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    box-sizing: border-box; 
+    background: rgba(0,0,0,0.03); 
+    border: 1px solid transparent; 
+    overflow-y: hidden;
+    resize: none;
+    z-index: 2; 
+    position: relative; 
+    cursor: text;
+}
+
+.note__textarea:focus {
+    background: #f7ed98;
+    border: 1px solid rgba(0,0,0,0.2);
+    outline-color: #646cff; 
+}
+
+
+.note__scene-heading {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+
+.note__description {
+    font-size: 14px;
+    
+    min-height: 60px; 
+}
+
+
+.note__field-group {
+    display: flex;
+    align-items: flex-start; 
+    gap: 6px; 
+    z-index: 2; 
+    position: relative; 
+}
+
+
+.note__charge-btn {
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: monospace; 
+    background-color: rgba(0,0,0,0.05);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    line-height: 1.35; 
+    color:#000;
+}
+
+.note__charge-btn:hover {
+    background-color: rgba(0,0,0,0.1);
+    border-color: rgba(0,0,0,0.2);
+}
+
+.note__charge-btn--red {
+    background-color: #d32f2f; 
+    color: #ffffff; 
+    border-color: #a00; 
+}
+
+.note__charge-btn--red:hover {
+    background-color: #e53935; 
+    border-color: #a00;
+}
+
+.note__charge-btn:focus,
+.note__charge-btn:focus-visible {
+    outline: 2px auto #646cff;
+}
+
+
+.note__conflict-label {
+    padding: 4px 0; 
+    font-size: 14px;
+    font-weight: bold;
+    font-family: monospace;
+    line-height: 1.35;
+    color: #333;
+}
+
+
+.note__field-group .note__textarea {
+    flex: 1; 
+}
+
+
+.board__act-label {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    
+    color: #000;
+    opacity: 0.5; 
+    z-index: 1; 
+    
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+    
+    
+    pointer-events: none; 
+    user-select: none;
+}
+
+
+.board__act-label--1 {
+    top: 12.5%; 
+}
+
+
+.board__act-label--2 {
+    top: 37.5%; 
+}
+
+
+.board__act-label--3 {
+    top: 62.5%; 
+}
+
+
+.board__act-label--4 {
+    top: 87.5%; 
+}
+
+
+
+.modal__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; 
+}
+
+.modal__content {
+    background: #ffffff;
+    color: #213547; 
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.modal__content p {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+}
+
+.modal__buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal__btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    font-family: inherit; 
+    font-size: 1em; 
+    background-color: white;
+    color: #757575;
+}
+
+.modal__btn--cancel {
+    background-color: #f9f9f9; 
+    color: #213547;
+    border: 1px solid #ccc;
+}
+.modal__btn--cancel:hover {
+    background-color: #e9e9e9;
+    border-color: #646cff;
+}
+
+.modal__btn--confirm {
+    background-color: #d32f2f; 
+    color: #ffffff;
+    border: 1px solid #a00;
+}
+.modal__btn--confirm:hover {
+    background-color: #e53935;
+    border-color: #a00;
+}
+
+
+
+
+
+
+.entity-modal {
+    text-align: left;
+    max-width: 500px;
+}
+
+.entity-modal h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.entity-modal__form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.entity-modal__form input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    background-color: white;
+    color: #000;
+}
+
+.entity-modal__form button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    font-size: 1em;
+    background-color: #646cff;
+    color: white;
+}
+.entity-modal__form button:hover {
+    background-color: #535bf2;
+}
+
+.entity-modal__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    max-height: 40vh;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+.entity-modal__list li {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+.entity-modal__list li:last-child {
+    border-bottom: none;
+}
+
+.entity-modal__view,
+.entity-modal__edit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    background-color: white;
+    color: #000;
+}
+
+.entity-modal__view span {
+    font-size: 1.1em;
+    word-break: break-all;
+}
+
+.entity-modal__view button,
+.entity-modal__edit button {
+    font-size: 0.9em;
+    padding: 4px 8px;
+    background-color: #f9f9f9;
+    color: #213547;
+    border: 1px solid #ccc;
+}
+
+.entity-modal__edit input {
+    flex-grow: 1;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+/* ... (todos tus estilos existentes) ... */
+
+/* --- ESTILOS PARA INPUTS CON SUGERENCIAS --- */
+.input-suggestions__container {
+    /* Contenedor relativo para posicionar el dropdown */
+    position: relative;
+    width: 100%;
+}
+
+/* El componente SceneHeadingInput necesita el z-index en su contenedor */
+.note__scene-heading .input-suggestions__container {
+    z-index: 3; /* Asegura que esté sobre otros campos de la nota */
+}
+
+.input-suggestions__list {
+    position: absolute;
+    top: 100%; /* Justo debajo del input */
+    left: 0;
+    right: 0;
+    background: #fdfdfd; /* Fondo claro */
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10; /* Por encima de todo en la nota O el beat sheet */
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.input-suggestions__item {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #213547; /* Color de texto oscuro */
+    font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.input-suggestions__item--active,
+.input-suggestions__item:hover {
+    background-color: #646cff; /* Color de hover/activo */
+    color: white;
+}
+
+/* --- ESTILOS PARA INPUTS CON SUGERENCIAS --- */
+.input-suggestions__container {
+    /* Contenedor relativo para posicionar el dropdown */
+    position: relative;
+    width: 100%;
+    /* z-index: 3; 
+      Quitamos el z-index de aquí para que funcione bien 
+      tanto en la Nota (que lo necesita) como en el BeatSheet (que no).
+      El componente SceneHeadingInput le dará z-index si lo necesita.
+    */
+}
+
+/* El componente SceneHeadingInput necesita el z-index en su contenedor */
+.note__scene-heading .input-suggestions__container {
+    z-index: 3;
+}
+
+.input-suggestions__list {
+    position: absolute;
+    top: 100%; /* Justo debajo del input */
+    left: 0;
+    right: 0;
+    background: #fdfdfd; /* Fondo claro */
+    border: 1px solid rgba(0,0,0,0.2);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10; /* Por encima de todo en la nota O el beat sheet */
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.input-suggestions__item {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #213547; /* Color de texto oscuro */
+    font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.input-suggestions__item--active,
+.input-suggestions__item:hover {
+    background-color: #646cff; /* Color de hover/activo */
+    color: white;
+}
+
+.beat-sheet__input--static {
+    padding: 4px 6px; 
+    line-height: 1.35;
+    min-height: calc(1em * 1.35 + 8px); /* 1em (14px) * 1.35 + 8px (padding) */
+    background: transparent;
+    border: none!important;
+    font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+    color: #000;
+    cursor: default;
+    box-sizing: border-box;
+    width: 100%;
+    text-align: left;
+    overflow-y: hidden;
+    resize: none;
+}
+
+/* --- Estilos para Páginas de Autenticación --- */
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: #242424;
+}
+
+.auth-form-container {
+  background-color: #333; /* Un fondo un poco más claro */
+  padding: 32px 40px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+  color: #f0f0f0;
+}
+
+.auth-form-container h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #ffffff;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #aaa;
+}
+
+.form-group input {
+  padding: 10px 14px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  font-size: 1em;
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #646cff;
+}
+
+.auth-button {
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  font-size: 1.1em;
+  background-color: #646cff;
+  color: white;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+.auth-button:hover {
+  background-color: #535bf2;
+}
+
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.auth-link {
+  color: #90caf9; /* Un azul claro legible */
+  text-decoration: none;
+  font-size: 14px;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #ffab91; /* Rojo claro */
+  background-color: rgba(211, 47, 47, 0.1);
+  border: 1px solid #d32f2f;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  margin: 0;
+}
+
+.success-message {
+  color: #a5d6a7; /* Verde claro */
+  background-color: rgba(67, 160, 71, 0.1);
+  border: 1px solid #43a047;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  margin: 0;
+}
+
+
+/* --- Estilos para Menú de Usuario --- */
+
+/* Mueve el menú de usuario al final de la toolbar */
+.app-toolbar {
+  display: flex;
+  /* ... tus otros estilos ... */
+}
+
+.user-menu-container {
+  position: relative;
+  margin-left: auto; /* <--- ¡ESTO ES IMPORTANTE! */
+}
+
+.user-menu-trigger {
+  background-color: #e0e0e0;
+  color: #333;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  border-radius: 18px; /* Hace el botón ovalado/circular */
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-menu-trigger:hover {
+  background-color: #d5d5d5;
+  border-color: #aaa;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px); /* Debajo del botón */
+  right: 0;
+  background: #ffffff;
+  color: #213547;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 3000;
+  width: 200px;
+  padding: 8px 0;
+  border: 1px solid #eee;
+  overflow: hidden;
+}
+
+.user-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font-size: 15px;
+  color: #213547;
+  cursor: pointer;
+  text-decoration: none; /* Para los Links */
+  box-sizing: border-box; /* Asegura padding correcto */
+}
+
+.user-menu-item:hover {
+  background-color: #f4f4f4;
+  color: #000;
+}
+
+.user-menu-item--danger {
+  color: #d32f2f;
+}
+.user-menu-item--danger:hover {
+  background-color: #fde8e8;
+  color: #a00;
+}
+
+/* ... (tus estilos existentes) ... */
+
+/* --- Estilos para Tooltip de Información --- */
+.tooltip-container {
+  position: static;
+  display: inline-block;
+  margin-left: 4px; /* Espacio entre el texto y el icono */
+  vertical-align: middle; /* Alinea el icono con el texto */
+}
+
+.tooltip-trigger {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 0.9em;
+  line-height: 1;
+  color: inherit; /* Hereda el color del label */
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.tooltip-trigger:hover {
+  opacity: 1;
+}
+
+.tooltip-popup {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;             
+  max-width: 100%;       
+  box-sizing: border-box;  
+  left: 0;                 
+  transform: none;         
+  white-space: normal;     
+
+  background: #3a3a3a;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  text-align: left;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
+  user-select: text;
+}
+
+/* Flecha del tooltip */
+.tooltip-popup::after {
+  content: '';
+  position: absolute;
+  top: 100%; /* Abajo del popup */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #3a3a3a transparent transparent transparent;
+}
+
+/* --- 4. ESTILOS PARA LA POSICIÓN 'UP' (HACIA ARRIBA) --- */
+.tooltip-popup--up {
+  bottom: 100%;            /* Posiciona justo encima del item */
+  margin-bottom: 8px;      /* Añade un espacio */
+}
+
+.tooltip-popup--up::after {
+  content: '';
+  position: absolute;
+  top: 100%; /* Abajo del popup */
+  left: 30px; 
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #3a3a3a transparent transparent transparent; /* Flecha apunta abajo */
+}
+
+
+/* --- 5. ESTILOS NUEVOS PARA LA POSICIÓN 'DOWN' (HACIA ABAJO) --- */
+.tooltip-popup--down {
+  top: 100%;             /* Posiciona justo debajo del item */
+  margin-top: 8px;       /* Añade un espacio */
+}
+
+.tooltip-popup--down::after {
+  content: '';
+  position: absolute;
+  bottom: 100%; /* Arriba del popup */
+  left: 30px;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #3a3a3a transparent; /* Flecha apunta arriba */
+}
+
+.tooltip-popup strong {
+    color: #fff59d; /* Color de acento de las notas */
+}
+.tooltip-popup ul {
+    padding-left: 20px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+.tooltip-popup li {
+    margin-bottom: 4px;
+}

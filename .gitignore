@@ -1,0 +1,100 @@
+# ##################################################################
+# SECRETOS Y CONFIGURACIÓN LOCAL (¡MUY IMPORTANTE!)
+# ##################################################################
+# Ignora las configuraciones de desarrollo del backend en CUALQUIER carpeta.
+**/appsettings.Development.json
+
+# Ignora los archivos de entorno local del frontend.
+.env.local
+.env.*.local
+
+# Ignora archivos de usuario específicos de Visual Studio
+*.user
+*.userosscache
+*.suo
+
+# Ignora bases de datos locales
+*.mdf
+*.ldf
+
+# Ignora certificados y claves privadas
+*.pfx
+*.snk
+
+
+# ##################################################################
+# BACKEND - Visual Studio / .NET (Combinado del original)
+# ##################################################################
+# Carpetas de Build
+[Bb]in/
+[Oo]bj/
+
+# Carpetas de Visual Studio
+.vs/
+
+# Resultados de Tests
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+# Artefactos de Build y Paquetes
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.binlog
+
+# Publicación
+*.[Pp]ublish.xml
+*.pubxml
+PublishScripts/
+
+# Otros
+*.sqlite
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.tmp
+
+
+# ##################################################################
+# FRONTEND - Vite / React / Node.js (Combinado del original)
+# ##################################################################
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencias
+node_modules/
+
+# Carpetas de Build de Vite/Frontend
+dist/
+dist-ssr/
+
+# Archivos de caché y temporales
+*.local
+.eslintcache
+*.tsbuildinfo
+
+# Directorios de IDEs (con excepción para VSCode)
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
