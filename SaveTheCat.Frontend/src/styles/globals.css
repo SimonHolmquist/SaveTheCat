@@ -108,49 +108,116 @@
 }
 
 
+/* --- ESTILOS PARA LA NOTA MINIMALISTA (PREVIEW) --- */
 .note {
-    position: absolute;
-    width: 8%;
-    aspect-ratio: 1 / 1;
-    
-    
-    border-radius: 6px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    
-    padding: 24px 12px 12px 12px;
-    transform: rotate(-1deg);
+    /* Ya tiene aspect-ratio 1/1 para ser cuadrada */
+    justify-content: center; /* Centrar contenido verticalmente */
+    align-items: center;     /* Centrar contenido horizontalmente */
+    text-align: center;
+    cursor: pointer;         /* Manito para indicar click */
+    /* Ajustar padding */
+    padding: 8px;
+}
+
+/* Ocultamos los scrollbars si el título es largo en el preview */
+.note__preview-content {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.note__preview-title {
+    font-weight: bold;
+    font-size: 14px; /* Un poco más grande para leer bien */
+    text-transform: uppercase;
+    word-wrap: break-word;
+    max-width: 100%;
+    line-height: 1.2;
+    font-family: 'Courier New', Courier, monospace; /* Estilo guion */
+    pointer-events: none; /* Permitir click en el div padre */
+}
+
+.note__indicators {
+    display: flex;
+    gap: 4px;
+    font-size: 10px;
+    opacity: 0.6;
+}
+
+/* --- ESTILOS PARA EL NUEVO MODAL DE DETALLES --- */
+.note-detail-modal {
+    width: 90%;
+    max-width: 600px; /* Más ancho para escribir cómodamente */
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 1px solid #ccc;
+    color: #000; /* Texto negro sobre fondo de nota */
+}
+
+.note-detail-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.note-detail-modal__header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.modal__close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #555;
+    line-height: 1;
+}
+.modal__close-btn:hover {
     color: #000;
-    z-index: 2;
-    transition: box-shadow 0.2s, transform 0.2s; 
 }
 
-.note--selected {
-    box-shadow: 0 0 0 3px #000, 0 8px 24px rgba(0, 0, 0, 0.3);
-    z-index: 999; 
-    transform: rotate(0deg) scale(1.02);
+.note-detail-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 4px; /* Espacio para scrollbar */
 }
 
-.note--selected.note--dragging {
-    box-shadow: 0 0 0 3px #000, 0 8px 24px rgba(0, 0, 0, 0.3);
-    z-index: 1000; 
-    transform: rotate(0deg) scale(1.05);
+.detail-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.6);
+    margin-bottom: -4px; /* Acercarlo al input */
+    margin-top: 4px;
 }
 
-
-.note--dragging {
-    cursor: grabbing;
-    z-index: 1000;
-    
-    transform: rotate(0deg) scale(1.05);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+/* Ajustes para los inputs dentro del modal */
+.note-detail-modal .note__textarea,
+.note-detail-modal .note__scene-heading textarea {
+    background: rgba(255, 255, 255, 0.5); /* Fondo semitransparente blanco */
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 8px;
+    font-size: 15px; /* Texto legible */
 }
 
-
-.note--dragging .note__header {
-    cursor: grabbing;
+.note-detail-modal .note__textarea:focus {
+    background: #fff;
+    border-color: #646cff;
 }
 
 

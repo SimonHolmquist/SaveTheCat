@@ -1,4 +1,5 @@
-import React, { useCallback, useRef, useState, useEffect } from "react";
+import React, { useCallback, useRef, useState, useEffect, useMemo } from "react";
+// ... (tus otros imports se mantienen igual: StickyBoard, BeatSheet, Toolbar, etc.)
 import StickyBoard from "./components/StickyBoard";
 import BeatSheet from "./components/BeatSheet";
 import Toolbar from "./components/Toolbar";
@@ -8,28 +9,25 @@ import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
 import "./styles/globals.css";
 import { useEntities } from "./hooks/useEntities";
 import type { Character, Location } from "./types/entities";
-// Ya no importamos las claves fijas
 import EntityModal from "./components/EntityModal";
 import { EntityProvider } from "./context/EntityContext";
-
-// --- ¡Nuevos imports! ---
 import { useProjects } from "./hooks/useProjects";
 import ProjectModal from "./components/ProjectModal";
 
+// --- NUEVO IMPORT ---
+import NoteDetailModal from "./components/NoteDetailModal";
+
 export default function App() {
-    // --- 1. Hook de Proyectos ---
     const {
         projects,
         activeProjectId,
-        isLoading: isLoadingProjects, // <-- 1. OBTENER EL ESTADO
+        isLoading: isLoadingProjects,
         addProject,
         updateProject,
         removeProject,
         setActiveProject
     } = useProjects();
 
-    // --- 2. Hooks de Datos (ahora dependen de activeProjectId) ---
-    // Si no hay proyecto activo (ej. en la carga inicial), usamos un fallback
     const activeId = activeProjectId ?? "default";
     const activeProjectName = projects.find(p => p.id === activeProjectId)?.name;
 
@@ -65,36 +63,38 @@ export default function App() {
         offsetX: number;
         offsetY: number;
     } | null>(null);
-    const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+    
+    // --- CAMBIO: selectedNoteId ahora también sirve para saber cuál editamos ---
+    // Podríamos usar un estado separado 'editingNoteId' si queremos que 
+    // la selección (borde negro) persista sin abrir el modal, pero según tu
+    // requerimiento "al hacer click se abra un modal", usaremos un estado para el modal.
+    const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+    const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null); // Para destacar visualmente
+    
     const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
-
     type ModalType = "characters" | "locations" | "projects" | null; 
     const [activeModal, setActiveModal] = useState<ModalType>(null);
 
-    // --- 3. Crear proyecto por defecto si no existe ninguno ---
     useEffect(() => {
-        // ¡CONDICIÓN IMPORTANTE! No ejecutar si está cargando
-        if (isLoadingProjects) {
-            return;
-        }
-        
+        if (isLoadingProjects) return;
         if (projects.length === 0 && !activeProjectId) {
             addProject("MI PRIMER PROYECTO");
         }
-    // 2. Añadir isLoadingProjects a las dependencias
     }, [projects, activeProjectId, addProject, isLoadingProjects]);
     
-    // --- 4. Resetea la selección al cambiar de proyecto ---
     useEffect(() => {
         setSelectedNoteId(null);
+        setEditingNoteId(null);
         setDraggingNote(null);
     }, [activeProjectId]);
 
-    // --- Handlers (sin cambios) ---
+    // --- Handlers ---
+
     const handleBackgroundClick: React.MouseEventHandler<HTMLDivElement> = useCallback((e) => {
         if (!(boardRef.current instanceof HTMLDivElement)) return;
         if (draggingNote) return;
 
+        // Si hacemos click en el fondo, creamos nota
         const bounds = boardRef.current.getBoundingClientRect();
         addNoteAt(e.clientX - bounds.left, e.clientY - bounds.top, bounds.width, bounds.height);
 
@@ -103,9 +103,9 @@ export default function App() {
 
     const handleDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>, note: Note) => {
         if (!boardRef.current) return;
-        if ((e.target as HTMLElement).closest(".note__close-pin")) {
-            return;
-        }
+        if ((e.target as HTMLElement).closest(".note__close-pin")) return;
+        
+        // Esto es importante: MouseDown inicia arrastre, pero NO abre el modal aún
         e.stopPropagation();
 
         const boardBounds = boardRef.current.getBoundingClientRect();
@@ -118,7 +118,7 @@ export default function App() {
             offsetY: mouseY - note.y
         });
 
-        setSelectedNoteId(note.id);
+        setSelectedNoteId(note.id); // Seleccionamos visualmente al arrastrar
     }, []);
 
     const handleDragMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -134,7 +134,6 @@ export default function App() {
 
         let newX = mouseX - draggingNote.offsetX;
         let newY = mouseY - draggingNote.offsetY;
-
         const noteWidth = boardW * NOTE_W_PERCENT;
 
         newX = Math.max(8, Math.min(newX, boardW - noteWidth - 8));
@@ -147,15 +146,20 @@ export default function App() {
         setDraggingNote(null);
     }, []);
 
-    const handleSelectNote = useCallback((id: string) => {
+    // --- LÓGICA DE CLICK ---
+    const handleNoteClick = useCallback((id: string) => {
+        // Al hacer click (soltar el ratón sin haber arrastrado mucho), abrimos el modal
+        setEditingNoteId(id);
         setSelectedNoteId(id);
     }, []);
 
     const handleColorChange = useCallback((color: string) => {
-        if (selectedNoteId) {
-            updateNoteColor(selectedNoteId, color);
+        // Cambiamos el color de la nota seleccionada o editada
+        const targetId = editingNoteId || selectedNoteId;
+        if (targetId) {
+            updateNoteColor(targetId, color);
         }
-    }, [selectedNoteId, updateNoteColor]);
+    }, [editingNoteId, selectedNoteId, updateNoteColor]);
 
     const handleRequestDelete = useCallback((id: string) => {
         setNoteToDelete(id);
@@ -168,13 +172,16 @@ export default function App() {
     const handleConfirmDelete = useCallback(() => {
         if (noteToDelete) {
             removeNote(noteToDelete);
+            if (editingNoteId === noteToDelete) setEditingNoteId(null);
         }
         setNoteToDelete(null);
-    }, [noteToDelete, removeNote]);
+    }, [noteToDelete, removeNote, editingNoteId]);
 
-    
-    // --- 5. Renderizado ---
-    // 3. Modifica el estado de carga
+    // Nota actualmente en edición para pasarla al modal
+    const noteBeingEdited = useMemo(() => 
+        notes.find(n => n.id === editingNoteId) || null
+    , [notes, editingNoteId]);
+
     if (isLoadingProjects || !activeProjectId) {
         return <div className="app-container">Cargando...</div>;
     }
@@ -182,7 +189,7 @@ export default function App() {
     return (
         <div className="app-container">
             <Toolbar
-                selectedNoteId={selectedNoteId}
+                selectedNoteId={selectedNoteId || editingNoteId}
                 onColorChange={handleColorChange}
                 onProjectsClick={() => setActiveModal("projects")} 
                 onCharactersClick={() => setActiveModal("characters")}
@@ -206,55 +213,63 @@ export default function App() {
                         onDragStart={handleDragStart}
                         onDragMove={handleDragMove}
                         onDragEnd={handleDragEnd}
-                        onSelectNote={handleSelectNote}
+                        onSelectNote={handleNoteClick} // <-- Ahora esto abre el modal
                         onUpdateNote={updateNote}
                         onRemoveNote={handleRequestDelete}
                     />
                 </div>
+
+                {/* --- NUEVO MODAL DE DETALLES DE NOTA --- */}
+                <NoteDetailModal
+                    isOpen={!!editingNoteId}
+                    onClose={() => setEditingNoteId(null)}
+                    note={noteBeingEdited}
+                    onUpdate={updateNote}
+                />
+
+                <ConfirmDeleteModal
+                    isOpen={noteToDelete !== null}
+                    onConfirm={handleConfirmDelete}
+                    onCancel={handleCancelDelete}
+                />
+
+                {/* ... (Resto de modales existentes) ... */}
+                <ProjectModal
+                    isOpen={activeModal === "projects"}
+                    onClose={() => setActiveModal(null)}
+                    projects={projects}
+                    activeProjectId={activeProjectId}
+                    onAdd={addProject}
+                    onUpdate={updateProject}
+                    onDelete={removeProject}
+                    onSelect={(id) => {
+                        setActiveProject(id);
+                        setActiveModal(null);
+                    }}
+                />
+
+                <EntityModal
+                    isOpen={activeModal === "characters"}
+                    onClose={() => setActiveModal(null)}
+                    title="Gestionar Personajes"
+                    placeholderName="Nombre del personaje"
+                    entities={characters}
+                    onAdd={addCharacter}
+                    onUpdate={updateCharacter}
+                    onDelete={removeCharacter}
+                />
+
+                <EntityModal
+                    isOpen={activeModal === "locations"}
+                    onClose={() => setActiveModal(null)}
+                    title="Gestionar Locaciones"
+                    placeholderName="Nombre de la locación"
+                    entities={locations}
+                    onAdd={addLocation}
+                    onUpdate={updateLocation}
+                    onDelete={removeLocation}
+                />
             </EntityProvider>
-
-            <ConfirmDeleteModal
-                isOpen={noteToDelete !== null}
-                onConfirm={handleConfirmDelete}
-                onCancel={handleCancelDelete}
-            />
-
-            {/* --- 6. Nuevos Modales --- */}
-            <ProjectModal
-                isOpen={activeModal === "projects"}
-                onClose={() => setActiveModal(null)}
-                projects={projects}
-                activeProjectId={activeProjectId}
-                onAdd={addProject}
-                onUpdate={updateProject}
-                onDelete={removeProject}
-                onSelect={(id) => {
-                    setActiveProject(id);
-                    setActiveModal(null); // Cierra el modal al seleccionar
-                }}
-            />
-
-            <EntityModal
-                isOpen={activeModal === "characters"}
-                onClose={() => setActiveModal(null)}
-                title="Gestionar Personajes"
-                placeholderName="Nombre del personaje"
-                entities={characters}
-                onAdd={addCharacter}
-                onUpdate={updateCharacter}
-                onDelete={removeCharacter}
-            />
-
-            <EntityModal
-                isOpen={activeModal === "locations"}
-                onClose={() => setActiveModal(null)}
-                title="Gestionar Locaciones"
-                placeholderName="Nombre de la locación"
-                entities={locations}
-                onAdd={addLocation}
-                onUpdate={updateLocation}
-                onDelete={removeLocation}
-            />
         </div>
     );
 }
