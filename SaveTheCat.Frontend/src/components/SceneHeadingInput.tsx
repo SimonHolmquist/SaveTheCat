@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useEntitiesContext } from "../context/EntityContext";
 
-// --- Constantes para las sugerencias ---
-const INTERIOR_EXTERIOR = ["INT.", "EXT."];
+// --- Constantes de Formato ---
+const PREFIXES = ["INT.", "EXT."];
 const TIMES_OF_DAY = [
-    "DIA", "TARDE", "NOCHE", "MAS TARDE", "AMANECER",
-    "ATARDECER", "ANOCHECER", "CONTINUO", "AL MISMO TIEMPO"
+    "DÍA", "NOCHE", "AMANECER", "ATARDECER", "MÁS TARDE", "CONTINUO", "AL MISMO TIEMPO"
 ];
 
 const autoGrow = (element: HTMLTextAreaElement | null) => {
@@ -15,11 +14,10 @@ const autoGrow = (element: HTMLTextAreaElement | null) => {
     }
 };
 
-// --- Props que recibirá el componente ---
 type Props = {
     value: string;
     onChange: (newValue: string) => void;
-    onInput: (e: React.SyntheticEvent<HTMLTextAreaElement>) => void; // Para auto-grow
+    onInput: (e: React.SyntheticEvent<HTMLTextAreaElement>) => void;
     placeholder: string;
     ariaLabel: string;
 };
@@ -29,14 +27,15 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    
+    // Estado para saber qué parte estamos editando: 'prefix' | 'location' | 'time'
+    const [currentPart, setCurrentPart] = useState<'prefix' | 'location' | 'time' | null>(null);
 
-    // Obtenemos las locaciones desde el contexto
     const { locations } = useEntitiesContext();
     const locationNames = useMemo(() => locations.map(l => l.name.toUpperCase()), [locations]);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    // Sincroniza el estado interno si el prop 'value' cambia desde fuera
     useEffect(() => {
         if (value !== inputValue) {
             setInputValue(value);
@@ -47,79 +46,74 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
         autoGrow(textareaRef.current);
     }, [value]);
 
-    // La lógica principal para actualizar sugerencias
+    // --- Lógica de Análisis de Contexto ---
+    const analyzeCursorPosition = (text: string, cursorIndex: number) => {
+        // 1. Detectar PREFIJO (Inicio hasta primer espacio)
+        const firstSpaceIndex = text.indexOf(' ');
+        if (firstSpaceIndex === -1 || cursorIndex <= firstSpaceIndex) {
+            return { part: 'prefix' as const, query: text.substring(0, cursorIndex).trim() };
+        }
+
+        // 2. Detectar TIEMPO (Después del último guion '-')
+        const lastDashIndex = text.lastIndexOf('-');
+        if (lastDashIndex !== -1 && cursorIndex > lastDashIndex) {
+            // Verificamos si estamos realmente escribiendo el tiempo (después del guion)
+            return { part: 'time' as const, query: text.substring(lastDashIndex + 1, cursorIndex).trimStart() };
+        }
+
+        // 3. Si no es prefijo ni tiempo, es LOCACIÓN (Entre prefijo y tiempo/final)
+        // El query de locación es más complejo porque puede tener espacios.
+        // Tomamos desde el primer espacio hasta el cursor o hasta el guion.
+        const startLocation = firstSpaceIndex + 1;
+        const endLocation = (lastDashIndex !== -1 && cursorIndex > lastDashIndex) ? lastDashIndex : cursorIndex;
+        const query = text.substring(startLocation, endLocation).trimStart(); 
+        
+        // Truco: si estamos justo después del espacio del prefijo, mostrar todas las locaciones
+        return { part: 'location' as const, query };
+    };
+
     const updateSuggestions = (element: HTMLTextAreaElement) => {
-        const text = element.value;
+        const text = element.value.toUpperCase(); // Normalizamos para búsqueda
         const cursorIndex = element.selectionStart;
-        const separatorIndex = text.indexOf('/');
 
-        if (separatorIndex === -1 || cursorIndex <= separatorIndex) {
-             const part1 = text.substring(0, separatorIndex > -1 ? separatorIndex : text.length).trim();
-             
-             // AQUÍ SE USA LA CONSTANTE QUE DABA ERROR
-             const filtered = INTERIOR_EXTERIOR.filter(s => s.startsWith(part1.toUpperCase()));
-             
-             setSuggestions(filtered);
-             setShowSuggestions(filtered.length > 0);
-             return;
-        }
+        const { part, query } = analyzeCursorPosition(text, cursorIndex);
+        setCurrentPart(part);
 
-        // 2. Está después del separador "/"
-        const afterSlashFull = text.substring(separatorIndex + 1); // Todo despues del /
-        const cursorInSecondPart = cursorIndex - (separatorIndex + 1); // Cursor relativo a la 2da parte
-        
-        // Analizamos la segunda parte para ver si estamos en LOCACION o HORA
-        // Buscamos si hay un espacio que separe Locacion de Hora
-        // Pero ojo, la locación puede tener espacios (CASA DE JUAN).
-        // Una heurística simple: Sugerir Locaciones hasta que se seleccione una o se detecte un TIME_OF_DAY al final.
-        
-        // Para simplificar el "Instantaneo":
-        // Si estamos escribiendo justo después del /, sugerimos Locaciones.
-        // Si ya hay texto y espacio, sugerimos Hora.
-        
-        const textUpToCursor = afterSlashFull.substring(0, cursorInSecondPart).trimStart();
-        // Verificamos si lo que hay antes del cursor parece una locación completa (esto es difícil sin saber si terminó).
-        // Mejor enfoque: Mostrar locaciones. Si el usuario escribe algo que coincida con el inicio de una HORA, mostrar hora.
-        
-        // Simplificación robusta:
-        // Tomamos la última palabra que se está escribiendo
-        const words = textUpToCursor.split(' ');
-        const lastWord = words[words.length - 1].toUpperCase();
-        
-        // Si la última palabra machea con el inicio de un TIEMPO, sugerimos tiempos.
-        const matchingTimes = TIMES_OF_DAY.filter(t => t.startsWith(lastWord) && lastWord.length > 0);
-        
-        if (matchingTimes.length > 0) {
-             setSuggestions(matchingTimes);
-             setShowSuggestions(true);
+        let source: string[] = [];
+        if (part === 'prefix') source = PREFIXES;
+        else if (part === 'time') source = TIMES_OF_DAY;
+        else if (part === 'location') source = locationNames;
+
+        // Filtrar
+        let filtered: string[] = [];
+        if (!query) {
+            filtered = source; // Mostrar todos si no hay texto
         } else {
-             // Si no parece un tiempo, sugerimos Locaciones que coincidan con todo el bloque tras el /
-             const locationSearch = textUpToCursor.toUpperCase(); // Buscar por todo el string
-             const filteredLocations = locationNames.filter(l => l.startsWith(locationSearch));
-             
-             // Si no hay texto aún, mostrar todas las locaciones
-             if (textUpToCursor.length === 0) {
-                  setSuggestions(locationNames);
-                  setShowSuggestions(locationNames.length > 0);
-             } else {
-                  setSuggestions(filteredLocations);
-                  setShowSuggestions(filteredLocations.length > 0);
-             }
+            filtered = source.filter(item => item.startsWith(query));
         }
+
+        setSuggestions(filtered);
+        setShowSuggestions(filtered.length > 0);
+        
+        // IMPORTANTE: Solo reseteamos el índice si la lista cambió drásticamente o cerramos.
+        // Pero para mantenerlo simple y funcional, lo reseteamos al filtrar.
+        // El problema de navegación se soluciona en handleKeyUp.
         setActiveSuggestionIndex(0);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const newText = e.target.value;
+        const newText = e.target.value.toUpperCase();
         setInputValue(newText);
         onChange(newText);
-        updateSuggestions(e.target); // Pasa el target
+        updateSuggestions(e.target);
     };
 
-    const handleCursorActivity = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    // Maneja clicks y focus
+    const handleCursorMove = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
         updateSuggestions(e.currentTarget);
     };
 
+    // Maneja navegación (no debe resetear el índice)
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (!showSuggestions || suggestions.length === 0) return;
 
@@ -138,42 +132,70 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
         }
     };
 
+    // FIX DEL BUG: onKeyUp dispara updateSuggestions, lo que reseteaba el índice.
+    // Filtramos las teclas de navegación para evitar el reseteo.
+    const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Enter" || e.key === "Escape") {
+            return;
+        }
+        updateSuggestions(e.currentTarget);
+    };
+
     const selectSuggestion = (suggestion: string) => {
-        const separatorIndex = inputValue.indexOf('/');
-        let newValue = "";
+        if (!textareaRef.current || !currentPart) return;
+        
+        const text = inputValue;
+        let newText = "";
+        let newCursorPos = 0;
 
-        if (separatorIndex === -1) {
-            // Completando INT./EXT.
-            newValue = `${suggestion} / `;
-        } else {
-            const part1 = inputValue.substring(0, separatorIndex + 1); // "INT. /"
-            const afterSlash = inputValue.substring(separatorIndex + 1).trimStart();
-            const firstSpaceIndex = afterSlash.indexOf(' ');
+        if (currentPart === 'prefix') {
+            // Reemplazar/Insertar prefijo
+            const firstSpace = text.indexOf(' ');
+            const rest = firstSpace === -1 ? "" : text.substring(firstSpace);
+            newText = `${suggestion} ${rest.trimStart()}`;
+            newCursorPos = suggestion.length + 1; // Cursor después del espacio
+        } 
+        else if (currentPart === 'location') {
+            // Reemplazar/Insertar locación
+            const firstSpace = text.indexOf(' ');
+            const prefix = text.substring(0, firstSpace + 1);
+            
+            const dashIndex = text.indexOf('-');
+            const suffix = dashIndex === -1 ? "" : text.substring(dashIndex); // " - DÍA"
 
-            if (firstSpaceIndex === -1) {
-                // Completando HORA
-                newValue = `${part1} ${suggestion} `;
-            } else {
-                // Completando LOCACION
-                const timePart = afterSlash.substring(0, firstSpaceIndex);
-                newValue = `${part1} ${timePart} ${suggestion}`;
+            // Construimos: PREFIJO + SUGERENCIA + SUFIJO
+            newText = `${prefix}${suggestion} ${suffix.trimStart()}`;
+            
+            // Si no había guion, lo sugerimos para el siguiente paso
+            if (dashIndex === -1) {
+                 newText = newText.trimEnd() + " - ";
             }
+            newCursorPos = newText.length;
+        } 
+        else if (currentPart === 'time') {
+            // Reemplazar/Insertar tiempo
+            const lastDash = text.lastIndexOf('-');
+            const base = text.substring(0, lastDash + 1); // "INT. CASA -"
+            newText = `${base} ${suggestion}`;
+            newCursorPos = newText.length;
         }
 
-        setInputValue(newValue);
-        onChange(newValue); // Actualiza el estado final
+        setInputValue(newText);
+        onChange(newText);
         setShowSuggestions(false);
         setActiveSuggestionIndex(0);
 
-        // Devolver el foco al textarea
-        textareaRef.current?.focus();
+        // Devolver el foco y mover cursor
+        setTimeout(() => {
+            if (textareaRef.current) {
+                textareaRef.current.focus();
+                textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+            }
+        }, 0);
     };
 
     const handleBlur = () => {
-        // Retrasamos el cierre para permitir el click en la sugerencia
-        setTimeout(() => {
-            setShowSuggestions(false);
-        }, 150);
+        setTimeout(() => setShowSuggestions(false), 150);
     };
 
     return (
@@ -185,10 +207,11 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
                 value={inputValue}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
+                onKeyUp={handleKeyUp} // Usamos handleKeyUp filtrado
                 onBlur={handleBlur}
-                onInput={onInput} // Pasa el evento onInput para el auto-grow
-                onClick={handleCursorActivity} 
-                onKeyUp={handleCursorActivity}
+                onInput={onInput}
+                onClick={handleCursorMove} // Click reposiciona el contexto
+                onFocus={handleCursorMove} // Focus muestra sugerencias
                 placeholder={placeholder}
                 aria-label={ariaLabel}
                 autoComplete="off"
@@ -198,10 +221,11 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
                     {suggestions.map((suggestion, index) => (
                         <li
                             key={suggestion}
-                            className={`input-suggestions__item ${index === activeSuggestionIndex ? "input-suggestions__item--active" : ""
-                                }`}
-                            // Usamos onMouseDown en lugar de onClick para que se dispare antes que el onBlur
-                            onMouseDown={() => selectSuggestion(suggestion)}
+                            className={`input-suggestions__item ${index === activeSuggestionIndex ? "input-suggestions__item--active" : ""}`}
+                            onMouseDown={(e) => {
+                                e.preventDefault(); // Evita perder el foco antes del click
+                                selectSuggestion(suggestion);
+                            }}
                         >
                             {suggestion}
                         </li>
