@@ -1,5 +1,4 @@
 import React, { useCallback, useRef, useState, useEffect, useMemo } from "react";
-// ... (tus otros imports se mantienen igual: StickyBoard, BeatSheet, Toolbar, etc.)
 import StickyBoard from "./components/StickyBoard";
 import BeatSheet from "./components/BeatSheet";
 import Toolbar from "./components/Toolbar";
@@ -13,8 +12,6 @@ import EntityModal from "./components/EntityModal";
 import { EntityProvider } from "./context/EntityContext";
 import { useProjects } from "./hooks/useProjects";
 import ProjectModal from "./components/ProjectModal";
-
-// --- NUEVO IMPORT ---
 import NoteDetailModal from "./components/NoteDetailModal";
 
 export default function App() {
@@ -57,6 +54,10 @@ export default function App() {
     } = useEntities<Location>(activeId, 'locations'); 
 
     const boardRef = useRef<HTMLDivElement>(null);
+    
+    // Referencias para solucionar los bugs
+    const initializationRef = useRef(false); // Evita doble creación de proyecto
+    const dragInteractionRef = useRef(false); // Distingue entre click y arrastre
 
     const [draggingNote, setDraggingNote] = useState<{
         id: string;
@@ -64,20 +65,20 @@ export default function App() {
         offsetY: number;
     } | null>(null);
     
-    // --- CAMBIO: selectedNoteId ahora también sirve para saber cuál editamos ---
-    // Podríamos usar un estado separado 'editingNoteId' si queremos que 
-    // la selección (borde negro) persista sin abrir el modal, pero según tu
-    // requerimiento "al hacer click se abra un modal", usaremos un estado para el modal.
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null); // Para destacar visualmente
+    const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
     
     const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
     type ModalType = "characters" | "locations" | "projects" | null; 
     const [activeModal, setActiveModal] = useState<ModalType>(null);
 
+    // --- BUG FIX 1: Creación de proyecto único ---
     useEffect(() => {
         if (isLoadingProjects) return;
-        if (projects.length === 0 && !activeProjectId) {
+        
+        // Usamos la referencia para asegurar que solo entre una vez
+        if (!initializationRef.current && projects.length === 0 && !activeProjectId) {
+            initializationRef.current = true;
             addProject("MI PRIMER PROYECTO");
         }
     }, [projects, activeProjectId, addProject, isLoadingProjects]);
@@ -94,7 +95,6 @@ export default function App() {
         if (!(boardRef.current instanceof HTMLDivElement)) return;
         if (draggingNote) return;
 
-        // Si hacemos click en el fondo, creamos nota
         const bounds = boardRef.current.getBoundingClientRect();
         addNoteAt(e.clientX - bounds.left, e.clientY - bounds.top, bounds.width, bounds.height);
 
@@ -105,8 +105,10 @@ export default function App() {
         if (!boardRef.current) return;
         if ((e.target as HTMLElement).closest(".note__close-pin")) return;
         
-        // Esto es importante: MouseDown inicia arrastre, pero NO abre el modal aún
         e.stopPropagation();
+        
+        // --- BUG FIX 2: Resetear bandera de arrastre ---
+        dragInteractionRef.current = false;
 
         const boardBounds = boardRef.current.getBoundingClientRect();
         const mouseX = e.clientX - boardBounds.left;
@@ -118,12 +120,15 @@ export default function App() {
             offsetY: mouseY - note.y
         });
 
-        setSelectedNoteId(note.id); // Seleccionamos visualmente al arrastrar
+        setSelectedNoteId(note.id);
     }, []);
 
     const handleDragMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         if (!draggingNote || !boardRef.current) return;
         e.stopPropagation();
+
+        // --- BUG FIX 2: Marcar que hubo movimiento ---
+        dragInteractionRef.current = true;
 
         const boardBounds = boardRef.current.getBoundingClientRect();
         const boardW = boardBounds.width;
@@ -146,15 +151,16 @@ export default function App() {
         setDraggingNote(null);
     }, []);
 
-    // --- LÓGICA DE CLICK ---
+    // --- BUG FIX 2: Verificar si fue arrastre antes de abrir modal ---
     const handleNoteClick = useCallback((id: string) => {
-        // Al hacer click (soltar el ratón sin haber arrastrado mucho), abrimos el modal
+        if (dragInteractionRef.current) {
+            return; // Si se movió, ignoramos el evento de click
+        }
         setEditingNoteId(id);
         setSelectedNoteId(id);
     }, []);
 
     const handleColorChange = useCallback((color: string) => {
-        // Cambiamos el color de la nota seleccionada o editada
         const targetId = editingNoteId || selectedNoteId;
         if (targetId) {
             updateNoteColor(targetId, color);
@@ -177,7 +183,6 @@ export default function App() {
         setNoteToDelete(null);
     }, [noteToDelete, removeNote, editingNoteId]);
 
-    // Nota actualmente en edición para pasarla al modal
     const noteBeingEdited = useMemo(() => 
         notes.find(n => n.id === editingNoteId) || null
     , [notes, editingNoteId]);
@@ -213,13 +218,12 @@ export default function App() {
                         onDragStart={handleDragStart}
                         onDragMove={handleDragMove}
                         onDragEnd={handleDragEnd}
-                        onSelectNote={handleNoteClick} // <-- Ahora esto abre el modal
+                        onSelectNote={handleNoteClick}
                         onUpdateNote={updateNote}
                         onRemoveNote={handleRequestDelete}
                     />
                 </div>
 
-                {/* --- NUEVO MODAL DE DETALLES DE NOTA --- */}
                 <NoteDetailModal
                     isOpen={!!editingNoteId}
                     onClose={() => setEditingNoteId(null)}
@@ -233,7 +237,6 @@ export default function App() {
                     onCancel={handleCancelDelete}
                 />
 
-                {/* ... (Resto de modales existentes) ... */}
                 <ProjectModal
                     isOpen={activeModal === "projects"}
                     onClose={() => setActiveModal(null)}
