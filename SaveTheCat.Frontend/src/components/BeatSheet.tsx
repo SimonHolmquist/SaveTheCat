@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import GenreInput from "./GenreInput";
 import TextAreaWithSuggestions from "./TextAreaWithSuggestions";
-import apiClient from "../api/apiClient"; // <-- Importa el cliente API
-import type { BeatSheetDto, UpdateBeatSheetDto } from "../types/beatSheet"; // <-- (Ver nota abajo)
+import apiClient from "../api/apiClient"; 
+import type { BeatSheetDto, UpdateBeatSheetDto } from "../types/beatSheet";
 
-// --- Lógica de auto-guardado ---
-const AUTOSAVE_DELAY = 1000; // 1 segundo de retraso
+const AUTOSAVE_DELAY = 1000;
 
-// Mapea las etiquetas a las claves del DTO para el renderizado
 const beatSheetFields: { label: string; key: keyof BeatSheetDto; description?: string }[] = [
   { label: "TÍTULO DEL PROYECTO:", key: "title", description: "El nombre oficial de tu guion." },
   { label: "LOGLINE:", key: "logline", description: "Tu historia resumida en una sola frase atractiva." },
@@ -30,16 +28,95 @@ const beatSheetFields: { label: string; key: keyof BeatSheetDto; description?: s
   { label: "15. Imagen de cierre (110):", key: "finalImage", description: "El espejo de la imagen de apertura. Muestra cuánto ha cambiado el héroe." },
 ];
 
-const InfoTooltip = ({ text }: { text: string }) => {
+const InfoTooltip = ({ text, direction = 'up' }: { text: string; direction?: 'up' | 'down' }) => {
   const [visible, setVisible] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setVisible(false);
+      }
+    };
+
+    if (visible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [visible]);
+
+  const toggleTooltip = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setVisible(!visible);
+  }
+
+  // Estilos dinámicos según dirección
+  const tooltipStyles: React.CSSProperties = {
+      position: 'absolute',
+      width: '220px',
+      zIndex: 1001,
+      background: '#333', // Gris oscuro estilo tooltip nativo
+      color: '#fff',
+      padding: '8px 12px',
+      borderRadius: '6px',
+      fontSize: '0.85rem',
+      lineHeight: '1.4',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+      whiteSpace: 'normal',
+      textAlign: 'left',
+      
+      // Posicionamiento horizontal: empieza un poco a la izquierda del icono para que el cuerpo vaya a la derecha
+      left: '-12px', 
+      
+      // Posicionamiento vertical
+      ...(direction === 'up' 
+          ? { bottom: '100%', marginBottom: '10px' } 
+          : { top: '100%', marginTop: '10px' }
+      )
+  };
+
+  // Estilos para la flecha (cola)
+  const arrowStyles: React.CSSProperties = {
+      position: 'absolute',
+      width: 0,
+      height: 0,
+      borderLeft: '6px solid transparent',
+      borderRight: '6px solid transparent',
+      left: '16px', // Alineado para apuntar al centro del icono (suponiendo icono ~20px)
+      
+      ...(direction === 'up'
+          ? { 
+              borderTop: '6px solid #333', 
+              top: '100%' // Abajo del tooltip
+            } 
+          : { 
+              borderBottom: '6px solid #333', 
+              bottom: '100%' // Arriba del tooltip
+            }
+      )
+  };
+
   return (
-    <div className="tooltip-container"
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-      style={{ marginLeft: '6px', display: 'inline-block', position: 'relative' }}>
-      <span className="tooltip-trigger" style={{ cursor: 'help', fontSize: '1.1em' }}>ℹ️</span>
+    <div 
+      ref={wrapperRef}
+      className="tooltip-container"
+      style={{ display: 'inline-flex', alignItems: 'center', position: 'relative' }}
+    >
+      <button 
+        type="button"
+        onClick={toggleTooltip}
+        className="tooltip-trigger" 
+        style={{ cursor: 'pointer', fontSize: '1.1em', background: 'transparent', border: 'none', padding: 0, lineHeight: 1, display:'flex' }}
+        title="Click para ver información"
+      >
+          ℹ️
+      </button>
+      
       {visible && (
-        <div className="tooltip-popup tooltip-popup--up" style={{ width: '200px', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: '8px' }}>
+        <div style={tooltipStyles}>
+          <div style={arrowStyles} />
           {text}
         </div>
       )}
@@ -54,25 +131,21 @@ const autoGrow = (element: HTMLTextAreaElement) => {
 
 type Props = {
   projectId: string;
-  // projectName ya no es necesario, el título vendrá de la API
   projectName: string | undefined;
 };
 
 export default function BeatSheet({ projectId }: Props) {
-  // 1. Estado para guardar los datos de la hoja
   const [beatSheet, setBeatSheet] = useState<BeatSheetDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const sheetRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<number | null>(null);
 
-  // 2. Efecto para CARGAR la BeatSheet
   useEffect(() => {
     if (!projectId) return;
 
     setIsLoading(true);
     const fetchBeatSheet = async () => {
       try {
-        // GET /api/projects/{projectId}/beatsheet
         const response = await apiClient.get(`/projects/${projectId}/beatsheet`);
         setBeatSheet(response.data);
       } catch (error) {
@@ -85,68 +158,53 @@ export default function BeatSheet({ projectId }: Props) {
     fetchBeatSheet();
   }, [projectId]);
 
-  // 3. Efecto para GUARDAR la BeatSheet (con debounce)
   useEffect(() => {
-    // No guardar si:
-    // - Aún no se ha cargado (beatSheet es null)
-    // - El proyecto no está definido
-    // - Ya hay un guardado en curso (isLoading)
     if (!beatSheet || !projectId || isLoading) {
       return;
     }
 
-    // Si hay un timer pendiente, lo cancelamos
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
 
-    // Creamos un nuevo timer
     debounceTimer.current = window.setTimeout(async () => {
       try {
-        // Prepara el DTO: quita los campos que no se actualizan
         const { id, projectId: pId, title, date, ...updateDto } = beatSheet;
-
-        // PUT /api/projects/{projectId}/beatsheet
         await apiClient.put(`/projects/${projectId}/beatsheet`, updateDto);
         console.log("BeatSheet guardada.");
-
       } catch (error) {
         console.error("Error al auto-guardar BeatSheet:", error);
       }
     }, AUTOSAVE_DELAY);
 
-    // Limpia el timer si el componente se desmonta
     return () => {
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [beatSheet, projectId, isLoading]); // Se dispara con cada cambio en beatSheet
+  }, [beatSheet, projectId, isLoading]); 
 
-  // 4. Handler unificado para actualizar el estado local
   const handleInputChange = (
     key: keyof UpdateBeatSheetDto,
     newText: string
   ) => {
-    // Actualiza el estado local, lo que disparará el efecto de auto-guardado
     setBeatSheet(prev => {
       if (!prev) return null;
       return { ...prev, [key]: newText };
     });
   };
 
-  // 5. Auto-grow al cargar y al cambiar
   useEffect(() => {
     if (sheetRef.current) {
       const textareas = sheetRef.current.querySelectorAll<HTMLTextAreaElement>(".beat-sheet__input");
       textareas.forEach(autoGrow);
     }
-  }, [beatSheet]); // Se re-calcula cuando los datos cambian
+  }, [beatSheet]);
 
   if (isLoading) {
     return <div className="beat-sheet">Cargando...</div>;
   }
-
+  
   if (!beatSheet) {
     return <div className="beat-sheet">Error al cargar la hoja de trama.</div>;
   }
@@ -156,6 +214,9 @@ export default function BeatSheet({ projectId }: Props) {
       {beatSheetFields.map(({ label, key }) => {
         const value = beatSheet[key] as string;
         const isReadOnly = (key === 'title' || key === 'date');
+        
+        // 'title' va hacia abajo, el resto hacia arriba
+        const tooltipDirection = key === 'title' ? 'down' : 'up';
 
         return (
           <div
@@ -163,12 +224,21 @@ export default function BeatSheet({ projectId }: Props) {
             className="beat-sheet__item"
             data-item-label={key === 'date' ? "fecha" : undefined}
           >
-            <label className="beat-sheet__label">{label}</label>
-            {beatSheetFields.find(f => f.key === key)?.description && (
-              <InfoTooltip text={beatSheetFields.find(f => f.key === key)!.description!} />
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                
+                {/* Icono primero */}
+                {beatSheetFields.find(f => f.key === key)?.description && (
+                    <InfoTooltip 
+                        text={beatSheetFields.find(f => f.key === key)!.description!} 
+                        direction={tooltipDirection}
+                    />
+                )}
+
+                {/* Texto después */}
+                <label className="beat-sheet__label" style={{ marginRight: 0 }}>{label}</label>
+            </div>
+
             {isReadOnly ? (
-              // 6. Inputs de Título y Fecha son solo de lectura
               <div
                 className="beat-sheet__input beat-sheet__input--static"
                 aria-label={label}
@@ -176,7 +246,6 @@ export default function BeatSheet({ projectId }: Props) {
                 {value}
               </div>
             ) : key === 'genre' ? (
-              // 7. Input de Género
               <GenreInput
                 value={value}
                 onChange={(newValue) => handleInputChange(key, newValue)}
@@ -184,7 +253,6 @@ export default function BeatSheet({ projectId }: Props) {
                 ariaLabel={label}
               />
             ) : (
-              // 8. Inputs de Texto normales
               <TextAreaWithSuggestions
                 className="beat-sheet__input"
                 rows={1}
