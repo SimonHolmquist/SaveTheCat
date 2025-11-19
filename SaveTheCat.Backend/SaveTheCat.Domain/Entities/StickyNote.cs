@@ -12,7 +12,7 @@ public class StickyNote
     public required string EmotionalDescription { get; set; }
     public required string Conflict { get; set; }
     public required string Color { get; set; }
-
+    public string BeatItem { get; set; } = string.Empty;
     // Relación con el proyecto
     public required Guid ProjectId { get; set; }
     public virtual Project? Project { get; set; }

@@ -10,5 +10,6 @@ public record UpdateStickyNoteDto(
     string EmotionalCharge,
     string EmotionalDescription,
     string Conflict,
-    string Color
+    string Color,
+    string BeatItem
 );

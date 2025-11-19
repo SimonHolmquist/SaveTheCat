@@ -28,7 +28,8 @@ public class CreateStickyNoteCommandHandler(ApplicationDbContext context, IMappe
             EmotionalCharge = dto.EmotionalCharge,
             EmotionalDescription = dto.EmotionalDescription,
             Conflict = dto.Conflict,
-            Color = dto.Color
+            Color = dto.Color,
+            BeatItem = dto.BeatItem ?? string.Empty
         };
 
         context.StickyNotes.Add(note);

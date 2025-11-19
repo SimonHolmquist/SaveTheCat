@@ -14,6 +14,7 @@ type Props = {
     onSelectNote: (id: string) => void;
     onUpdateNote: (id: string, newContent: Partial<Omit<Note, "id" | "x" | "y">>) => void;
     onRemoveNote: (id: string) => void;
+    onEditNote: (id: string) => void;
 };
 
 const StickyBoard = forwardRef<HTMLDivElement, Props>(({
@@ -26,8 +27,8 @@ const StickyBoard = forwardRef<HTMLDivElement, Props>(({
     onDragMove,
     onDragEnd,
     onSelectNote,
-    onUpdateNote,
     onRemoveNote,
+    onEditNote,
 }, ref) => {
     return (
         <div
@@ -72,10 +73,10 @@ const StickyBoard = forwardRef<HTMLDivElement, Props>(({
                     <StickyNote
                         key={n.id}
                         note={n}
-                        onChange={onUpdateNote}
                         onRemove={onRemoveNote}
                         onDragStart={(e) => onDragStart(e, n)}
                         onSelect={onSelectNote}
+                        onEdit={onEditNote}
                         isDragging={isDragging}
                         isSelected={isSelected}
                     />

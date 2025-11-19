@@ -10,5 +10,6 @@ string EmotionalCharge,
 string EmotionalDescription,
 string Conflict,
 string Color,
+string BeatItem,
 Guid ProjectId
 );

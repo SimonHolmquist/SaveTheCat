@@ -151,12 +151,14 @@ export default function App() {
         setDraggingNote(null);
     }, []);
 
-    // --- BUG FIX 2: Verificar si fue arrastre antes de abrir modal ---
     const handleNoteClick = useCallback((id: string) => {
-        if (dragInteractionRef.current) {
-            return; // Si se movió, ignoramos el evento de click
-        }
-        setEditingNoteId(id);
+        if (dragInteractionRef.current) return;
+        setSelectedNoteId(id); // SOLO selecciona
+    }, []);
+
+    // Handler para edición (doble click)
+    const handleNoteDoubleClick = useCallback((id: string) => {
+        setEditingNoteId(id); // Abre modal
         setSelectedNoteId(id);
     }, []);
 
@@ -219,6 +221,7 @@ export default function App() {
                         onDragMove={handleDragMove}
                         onDragEnd={handleDragEnd}
                         onSelectNote={handleNoteClick}
+                        onEditNote={handleNoteDoubleClick}
                         onUpdateNote={updateNote}
                         onRemoveNote={handleRequestDelete}
                     />

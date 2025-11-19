@@ -30,6 +30,7 @@ public class UpdateStickyNoteCommandHandler(ApplicationDbContext context, AutoMa
         note.EmotionalDescription = dto.EmotionalDescription;
         note.Conflict = dto.Conflict;
         note.Color = dto.Color;
+        note.BeatItem = dto.BeatItem ?? string.Empty;
         note.X = dto.X; // También actualiza X/Y
         note.Y = dto.Y;
 

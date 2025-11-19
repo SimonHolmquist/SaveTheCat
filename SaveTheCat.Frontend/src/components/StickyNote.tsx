@@ -5,6 +5,7 @@ type Props = {
     note: Note;
     onRemove: (id: string) => void;
     onSelect: (id: string) => void;     // Esto abrirá el modal
+    onEdit: (id: string) => void;
     onDragStart: (e: React.MouseEvent<HTMLDivElement>) => void;
     isDragging: boolean;
     isSelected: boolean;
@@ -15,6 +16,7 @@ export default function StickyNote({
     onRemove,
     onDragStart,
     onSelect,
+    onEdit,
     isDragging,
     isSelected
 }: Props) {
@@ -24,13 +26,18 @@ export default function StickyNote({
         onRemove(note.id);
     };
 
-    // Manejamos el click para abrir el modal (onSelect en App.tsx)
-    const handleNoteClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Solo selecciona, no edita
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
-        // Solo seleccionamos si no estamos arrastrando (lógica simple)
         if (!isDragging) {
             onSelect(note.id);
         }
+    };
+
+    // Doble click abre el modal
+    const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        onEdit(note.id);
     };
 
     return (
@@ -38,7 +45,8 @@ export default function StickyNote({
             className={`note ${isDragging ? "note--dragging" : ""} ${isSelected ? "note--selected" : ""}`}
             style={{ left: note.x, top: note.y, backgroundColor: note.color }}
             onMouseDown={onDragStart} // Inicia el arrastre
-            onClick={handleNoteClick} // Abre el modal al soltar el click
+            onClick={handleClick} 
+            onDoubleClick={handleDoubleClick}
             role="button"
             aria-label={`Nota: ${note.sceneHeading || "Sin título"}`}
         >

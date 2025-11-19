@@ -48,33 +48,63 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
     }, [value]);
 
     // La lógica principal para actualizar sugerencias
-    const updateSuggestions = (text: string) => {
+    const updateSuggestions = (element: HTMLTextAreaElement) => {
+        const text = element.value;
+        const cursorIndex = element.selectionStart;
         const separatorIndex = text.indexOf('/');
-        const part1 = text.substring(0, separatorIndex > -1 ? separatorIndex : text.length).trim();
 
-        if (separatorIndex === -1) {
-            // Caso 1: Escribiendo INT./EXT.
-            const filtered = INTERIOR_EXTERIOR.filter(s => s.startsWith(part1.toUpperCase()));
-            setSuggestions(filtered);
-            setShowSuggestions(filtered.length > 0);
+        if (separatorIndex === -1 || cursorIndex <= separatorIndex) {
+             const part1 = text.substring(0, separatorIndex > -1 ? separatorIndex : text.length).trim();
+             
+             // AQUÍ SE USA LA CONSTANTE QUE DABA ERROR
+             const filtered = INTERIOR_EXTERIOR.filter(s => s.startsWith(part1.toUpperCase()));
+             
+             setSuggestions(filtered);
+             setShowSuggestions(filtered.length > 0);
+             return;
+        }
+
+        // 2. Está después del separador "/"
+        const afterSlashFull = text.substring(separatorIndex + 1); // Todo despues del /
+        const cursorInSecondPart = cursorIndex - (separatorIndex + 1); // Cursor relativo a la 2da parte
+        
+        // Analizamos la segunda parte para ver si estamos en LOCACION o HORA
+        // Buscamos si hay un espacio que separe Locacion de Hora
+        // Pero ojo, la locación puede tener espacios (CASA DE JUAN).
+        // Una heurística simple: Sugerir Locaciones hasta que se seleccione una o se detecte un TIME_OF_DAY al final.
+        
+        // Para simplificar el "Instantaneo":
+        // Si estamos escribiendo justo después del /, sugerimos Locaciones.
+        // Si ya hay texto y espacio, sugerimos Hora.
+        
+        const textUpToCursor = afterSlashFull.substring(0, cursorInSecondPart).trimStart();
+        // Verificamos si lo que hay antes del cursor parece una locación completa (esto es difícil sin saber si terminó).
+        // Mejor enfoque: Mostrar locaciones. Si el usuario escribe algo que coincida con el inicio de una HORA, mostrar hora.
+        
+        // Simplificación robusta:
+        // Tomamos la última palabra que se está escribiendo
+        const words = textUpToCursor.split(' ');
+        const lastWord = words[words.length - 1].toUpperCase();
+        
+        // Si la última palabra machea con el inicio de un TIEMPO, sugerimos tiempos.
+        const matchingTimes = TIMES_OF_DAY.filter(t => t.startsWith(lastWord) && lastWord.length > 0);
+        
+        if (matchingTimes.length > 0) {
+             setSuggestions(matchingTimes);
+             setShowSuggestions(true);
         } else {
-            // Caso 2: Escribiendo después del "/"
-            const afterSlash = text.substring(separatorIndex + 1).trimStart();
-            const firstSpaceIndex = afterSlash.indexOf(' ');
-
-            if (firstSpaceIndex === -1) {
-                // Escribiendo la HORA
-                const timePart = afterSlash.trim().toUpperCase();
-                const filteredTimes = TIMES_OF_DAY.filter(t => t.startsWith(timePart));
-                setSuggestions(filteredTimes);
-                setShowSuggestions(filteredTimes.length > 0);
-            } else {
-                // Escribiendo la LOCACION
-                const locationPart = afterSlash.substring(firstSpaceIndex + 1).trimStart().toUpperCase();
-                const filteredLocations = locationNames.filter(l => l.startsWith(locationPart));
-                setSuggestions(filteredLocations);
-                setShowSuggestions(filteredLocations.length > 0);
-            }
+             // Si no parece un tiempo, sugerimos Locaciones que coincidan con todo el bloque tras el /
+             const locationSearch = textUpToCursor.toUpperCase(); // Buscar por todo el string
+             const filteredLocations = locationNames.filter(l => l.startsWith(locationSearch));
+             
+             // Si no hay texto aún, mostrar todas las locaciones
+             if (textUpToCursor.length === 0) {
+                  setSuggestions(locationNames);
+                  setShowSuggestions(locationNames.length > 0);
+             } else {
+                  setSuggestions(filteredLocations);
+                  setShowSuggestions(filteredLocations.length > 0);
+             }
         }
         setActiveSuggestionIndex(0);
     };
@@ -82,8 +112,12 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newText = e.target.value;
         setInputValue(newText);
-        onChange(newText); // Actualiza el estado en el hook padre
-        updateSuggestions(newText);
+        onChange(newText);
+        updateSuggestions(e.target); // Pasa el target
+    };
+
+    const handleCursorActivity = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+        updateSuggestions(e.currentTarget);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -153,6 +187,8 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
                 onKeyDown={handleKeyDown}
                 onBlur={handleBlur}
                 onInput={onInput} // Pasa el evento onInput para el auto-grow
+                onClick={handleCursorActivity} 
+                onKeyUp={handleCursorActivity}
                 placeholder={placeholder}
                 aria-label={ariaLabel}
                 autoComplete="off"

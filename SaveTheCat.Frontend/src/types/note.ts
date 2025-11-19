@@ -10,5 +10,6 @@ export interface Note {
     emotionalDescription: string;
     conflict: string;
     color: string;
+    beatItem?: string;
     projectId: string;
 }

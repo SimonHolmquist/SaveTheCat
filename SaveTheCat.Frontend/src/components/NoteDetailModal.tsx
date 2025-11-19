@@ -11,15 +11,37 @@ type Props = {
 };
 
 const CHARGES: EmotionalCharge[] = ["+/-", "-/+", "+/+", "-/-"];
+const BEAT_OPTIONS = [
+    { value: "", label: "-- Sin Asignar --" },
+    { value: "openingImage", label: "Imagen de apertura" },
+    { value: "themeStated", label: "Declaración del tema" },
+    { value: "setUp", label: "Planteamiento" },
+    { value: "catalyst", label: "Catalizador" },
+    { value: "debate", label: "Debate" },
+    { value: "breakIntoTwo", label: "Transición al Acto 2" },
+    { value: "bStory", label: "Trama B" },
+    { value: "funAndGames", label: "Juegos y risas" },
+    { value: "midpoint", label: "Punto intermedio" },
+    { value: "badGuysCloseIn", label: "Los malos estrechan..." },
+    { value: "allIsLost", label: "Todo está perdido" },
+    { value: "darkNightOfTheSoul", label: "Noche oscura" },
+    { value: "breakIntoThree", label: "Transición al Acto 3" },
+    { value: "finale", label: "Final" },
+    { value: "finalImage", label: "Imagen de cierre" },
+];
 
 export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Props) {
     if (!isOpen || !note) return null;
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-         // Cierra el modal si se hace clic en el fondo oscuro
+        // Cierra el modal si se hace clic en el fondo oscuro
         if (e.target === e.currentTarget) {
             onClose();
         }
+    };
+
+    const handleBeatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        onUpdate(note.id, { beatItem: e.target.value });
     };
 
     const handleTextAreaChange = (
@@ -39,7 +61,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
         const newCharge = CHARGES[nextIndex];
         onUpdate(note.id, { emotionalCharge: newCharge });
     };
-    
+
     const handleInput = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
         // Auto-grow logic simple para el modal
         const target = e.currentTarget;
@@ -59,6 +81,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
                 </div>
 
                 <div className="note-detail-modal__body">
+                    
                     <label className="detail-label">ENCABEZADO</label>
                     <SceneHeadingInput
                         value={note.sceneHeading}
@@ -80,9 +103,9 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
                     />
 
                     <div className="note__field-group">
-                        <div style={{display:'flex', flexDirection:'column', gap:'4px', flex: 1}}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
                             <label className="detail-label">CAMBIO EMOCIONAL</label>
-                             <div style={{display: 'flex', gap: '8px'}}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
                                 <button
                                     type="button"
                                     className={buttonClass}
@@ -100,7 +123,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
                                     placeholder="Descripción del cambio..."
                                     ariaLabel="Descripción emocional"
                                 />
-                             </div>
+                            </div>
                         </div>
                     </div>
 
@@ -118,7 +141,26 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
                         />
                     </div>
                 </div>
-                
+                <div style={{ marginBottom: '8px' }}>
+                        <label className="detail-label">VINCULAR A HOJA DE TRAMA</label>
+                        <select
+                            value={note.beatItem || ""}
+                            onChange={handleBeatChange}
+                            style={{
+                                width: '100%',
+                                padding: '6px',
+                                borderRadius: '4px',
+                                border: '1px solid rgba(0,0,0,0.1)',
+                                backgroundColor: 'rgba(255,255,255,0.5)',
+                                color: "black"
+                            }}
+                        >
+                            {BEAT_OPTIONS.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
+                    </div>
+
                 <div className="modal__buttons">
                     <button className="modal__btn" onClick={onClose}>Cerrar</button>
                 </div>

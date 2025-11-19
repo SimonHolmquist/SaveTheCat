@@ -50,7 +50,8 @@ export function useStickyNotes(projectId: string | null) {
       emotionalCharge: "+/-",
       emotionalDescription: "",
       conflict: "",
-      color: "#fff59d"
+      color: "#fff59d",
+      beatItem: ""
     };
 
     try {
