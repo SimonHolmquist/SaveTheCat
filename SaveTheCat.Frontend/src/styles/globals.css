@@ -3,7 +3,6 @@
     --beatsheet-width: calc(100vw / 6);
 }
 
-
 .app-container {
     display: flex;
     flex-direction: column;
@@ -31,7 +30,6 @@
     flex-grow: 1; 
     height: calc(100vh - var(--toolbar-height));
 }
-
 
 .toolbar__group {
     display: flex;
@@ -63,7 +61,6 @@
     margin: 0 8px;
 }
 
-
 .palette {
     gap: 4px;
 }
@@ -86,18 +83,14 @@
     cursor: not-allowed;
 }
 
-
 .board {
-    
     flex-grow: 1; 
     position: relative; 
     overflow: hidden;
     user-select: none;
 }
 
-
 .board__bg {
-    
     position: absolute;
     top: 0;
     left: 0;
@@ -107,16 +100,43 @@
     pointer-events: none;
 }
 
-
-/* --- ESTILOS PARA LA NOTA MINIMALISTA (PREVIEW) --- */
+/* --- ESTILOS CORREGIDOS PARA LA NOTA --- */
 .note {
-    /* Ya tiene aspect-ratio 1/1 para ser cuadrada */
-    justify-content: center; /* Centrar contenido verticalmente */
-    align-items: center;     /* Centrar contenido horizontalmente */
+    /* Propiedades Estructurales (NECESARIAS para que se vea y posicione) */
+    position: absolute;
+    width: 8%;           /* Tamaño relativo al tablero */
+    aspect-ratio: 1 / 1; /* Mantiene la forma cuadrada */
+    z-index: 2;          /* Para que aparezca encima del fondo */
+    
+    /* Estilos Visuales */
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    color: #000;
+    transition: box-shadow 0.2s, transform 0.2s;
+
+    /* Estilos de Contenido (Centrado) */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    cursor: pointer;         /* Manito para indicar click */
-    /* Ajustar padding */
+    cursor: pointer;
     padding: 8px;
+    
+    user-select: none; 
+}
+
+.note--selected {
+    box-shadow: 0 0 0 3px #000, 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 999; 
+    transform: scale(1.02);
+}
+
+.note--dragging {
+    cursor: grabbing;
+    z-index: 1000;
+    transform: scale(1.05) rotate(-2deg);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
 }
 
 /* Ocultamos los scrollbars si el título es largo en el preview */
@@ -133,13 +153,13 @@
 
 .note__preview-title {
     font-weight: bold;
-    font-size: 14px; /* Un poco más grande para leer bien */
+    font-size: 14px;
     text-transform: uppercase;
     word-wrap: break-word;
     max-width: 100%;
     line-height: 1.2;
-    font-family: 'Courier New', Courier, monospace; /* Estilo guion */
-    pointer-events: none; /* Permitir click en el div padre */
+    font-family: 'Courier New', Courier, monospace;
+    pointer-events: none;
 }
 
 .note__indicators {
@@ -152,13 +172,13 @@
 /* --- ESTILOS PARA EL NUEVO MODAL DE DETALLES --- */
 .note-detail-modal {
     width: 90%;
-    max-width: 600px; /* Más ancho para escribir cómodamente */
+    max-width: 600px;
     text-align: left;
     display: flex;
     flex-direction: column;
     gap: 16px;
     border: 1px solid #ccc;
-    color: #000; /* Texto negro sobre fondo de nota */
+    color: #000;
 }
 
 .note-detail-modal__header {
@@ -194,7 +214,7 @@
     gap: 12px;
     max-height: 70vh;
     overflow-y: auto;
-    padding-right: 4px; /* Espacio para scrollbar */
+    padding-right: 4px;
 }
 
 .detail-label {
@@ -202,17 +222,17 @@
     font-weight: bold;
     text-transform: uppercase;
     color: rgba(0,0,0,0.6);
-    margin-bottom: -4px; /* Acercarlo al input */
+    margin-bottom: -4px;
     margin-top: 4px;
 }
 
 /* Ajustes para los inputs dentro del modal */
 .note-detail-modal .note__textarea,
 .note-detail-modal .note__scene-heading textarea {
-    background: rgba(255, 255, 255, 0.5); /* Fondo semitransparente blanco */
+    background: rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(0,0,0,0.1);
     padding: 8px;
-    font-size: 15px; /* Texto legible */
+    font-size: 15px;
 }
 
 .note-detail-modal .note__textarea:focus {
@@ -220,10 +240,7 @@
     border-color: #646cff;
 }
 
-
-
 .beat-sheet {
-    
     width: var(--beatsheet-width);
     height: 100%; 
     background: #fff59d;
@@ -239,7 +256,6 @@
     flex-shrink: 0; 
 }
 
-
 .beat-sheet__item {
     position: relative;
     display: flex;
@@ -247,13 +263,11 @@
     gap: 4px; 
 }
 
-
 .beat-sheet__item[data-item-label="fecha"] {
     margin-bottom: 12px; 
     padding-bottom: 12px; 
     border-bottom: 1px solid rgba(0,0,0,0.1); 
 }
-
 
 .beat-sheet__label {
     font-weight: bold;
@@ -261,9 +275,6 @@
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
     white-space: nowrap; 
 }
-
-
-
 
 .beat-sheet__input {
     width: 100%;
@@ -276,17 +287,13 @@
     border: 1px solid rgba(0, 0, 0, 0.15);    
     overflow-y: hidden;
     resize: none;
-
 }
-
 
 .beat-sheet__input:focus {
     background: #f7ed98; 
     border: 1px solid rgba(0,0,0,0.2);
     outline-color: #646cff; 
 }
-
-
 
 .board__divider {
     position: absolute;
@@ -295,17 +302,10 @@
     height: 30px; 
     background: #ffe082;
     box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
-    
-    
     z-index: 1; 
-    
-    
     transform: translateY(-50%); 
-    
-    
     pointer-events: none; 
 }
-
 
 .board__divider--1 {
     top: 25%;
@@ -367,7 +367,6 @@
     transform: translateX(-50%) translateY(-4px) scale(1.1); 
 }
 
-
 .note__drag-area {
     position: absolute; 
     top: 0;
@@ -381,10 +380,6 @@
 .note--dragging .note__drag-area {
     cursor: grabbing;
 }
-
-
-
-
 
 .note__textarea {
     width: 100%;
@@ -408,20 +403,16 @@
     outline-color: #646cff; 
 }
 
-
 .note__scene-heading {
     font-weight: bold;
     text-transform: uppercase;
     font-size: 13px;
 }
 
-
 .note__description {
     font-size: 14px;
-    
     min-height: 60px; 
 }
-
 
 .note__field-group {
     display: flex;
@@ -430,7 +421,6 @@
     z-index: 2; 
     position: relative; 
 }
-
 
 .note__charge-btn {
     padding: 4px 8px;
@@ -467,7 +457,6 @@
     outline: 2px auto #646cff;
 }
 
-
 .note__conflict-label {
     padding: 4px 0; 
     font-size: 14px;
@@ -477,11 +466,9 @@
     color: #333;
 }
 
-
 .note__field-group .note__textarea {
     flex: 1; 
 }
-
 
 .board__act-label {
     position: absolute;
@@ -498,32 +485,25 @@
     text-align: center;
     line-height: 1.2;
     
-    
     pointer-events: none; 
     user-select: none;
 }
-
 
 .board__act-label--1 {
     top: 12.5%; 
 }
 
-
 .board__act-label--2 {
     top: 37.5%; 
 }
-
 
 .board__act-label--3 {
     top: 62.5%; 
 }
 
-
 .board__act-label--4 {
     top: 87.5%; 
 }
-
-
 
 .modal__overlay {
     position: fixed;
@@ -591,11 +571,6 @@
     background-color: #e53935;
     border-color: #a00;
 }
-
-
-
-
-
 
 .entity-modal {
     text-align: left;
@@ -689,80 +664,26 @@
     font-size: 1em;
 }
 
-/* ... (todos tus estilos existentes) ... */
-
 /* --- ESTILOS PARA INPUTS CON SUGERENCIAS --- */
 .input-suggestions__container {
-    /* Contenedor relativo para posicionar el dropdown */
     position: relative;
     width: 100%;
 }
 
-/* El componente SceneHeadingInput necesita el z-index en su contenedor */
-.note__scene-heading .input-suggestions__container {
-    z-index: 3; /* Asegura que esté sobre otros campos de la nota */
-}
-
-.input-suggestions__list {
-    position: absolute;
-    top: 100%; /* Justo debajo del input */
-    left: 0;
-    right: 0;
-    background: #fdfdfd; /* Fondo claro */
-    border: 1px solid rgba(0,0,0,0.2);
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10; /* Por encima de todo en la nota O el beat sheet */
-    max-height: 200px;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.input-suggestions__item {
-    padding: 8px 12px;
-    cursor: pointer;
-    color: #213547; /* Color de texto oscuro */
-    font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.input-suggestions__item--active,
-.input-suggestions__item:hover {
-    background-color: #646cff; /* Color de hover/activo */
-    color: white;
-}
-
-/* --- ESTILOS PARA INPUTS CON SUGERENCIAS --- */
-.input-suggestions__container {
-    /* Contenedor relativo para posicionar el dropdown */
-    position: relative;
-    width: 100%;
-    /* z-index: 3; 
-      Quitamos el z-index de aquí para que funcione bien 
-      tanto en la Nota (que lo necesita) como en el BeatSheet (que no).
-      El componente SceneHeadingInput le dará z-index si lo necesita.
-    */
-}
-
-/* El componente SceneHeadingInput necesita el z-index en su contenedor */
 .note__scene-heading .input-suggestions__container {
     z-index: 3;
 }
 
 .input-suggestions__list {
     position: absolute;
-    top: 100%; /* Justo debajo del input */
+    top: 100%; 
     left: 0;
     right: 0;
-    background: #fdfdfd; /* Fondo claro */
+    background: #fdfdfd;
     border: 1px solid rgba(0,0,0,0.2);
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10; /* Por encima de todo en la nota O el beat sheet */
+    z-index: 10;
     max-height: 200px;
     overflow-y: auto;
     margin: 0;
@@ -773,7 +694,7 @@
 .input-suggestions__item {
     padding: 8px 12px;
     cursor: pointer;
-    color: #213547; /* Color de texto oscuro */
+    color: #213547;
     font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
     white-space: nowrap;
     overflow: hidden;
@@ -782,14 +703,14 @@
 
 .input-suggestions__item--active,
 .input-suggestions__item:hover {
-    background-color: #646cff; /* Color de hover/activo */
+    background-color: #646cff;
     color: white;
 }
 
 .beat-sheet__input--static {
     padding: 4px 6px; 
     line-height: 1.35;
-    min-height: calc(1em * 1.35 + 8px); /* 1em (14px) * 1.35 + 8px (padding) */
+    min-height: calc(1em * 1.35 + 8px);
     background: transparent;
     border: none!important;
     font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial;
@@ -813,7 +734,7 @@
 }
 
 .auth-form-container {
-  background-color: #333; /* Un fondo un poco más claro */
+  background-color: #333; 
   padding: 32px 40px;
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
@@ -886,7 +807,7 @@
 }
 
 .auth-link {
-  color: #90caf9; /* Un azul claro legible */
+  color: #90caf9; 
   text-decoration: none;
   font-size: 14px;
 }
@@ -895,7 +816,7 @@
 }
 
 .error-message {
-  color: #ffab91; /* Rojo claro */
+  color: #ffab91; 
   background-color: rgba(211, 47, 47, 0.1);
   border: 1px solid #d32f2f;
   padding: 10px;
@@ -906,7 +827,7 @@
 }
 
 .success-message {
-  color: #a5d6a7; /* Verde claro */
+  color: #a5d6a7;
   background-color: rgba(67, 160, 71, 0.1);
   border: 1px solid #43a047;
   padding: 10px;
@@ -916,18 +837,10 @@
   margin: 0;
 }
 
-
 /* --- Estilos para Menú de Usuario --- */
-
-/* Mueve el menú de usuario al final de la toolbar */
-.app-toolbar {
-  display: flex;
-  /* ... tus otros estilos ... */
-}
-
 .user-menu-container {
   position: relative;
-  margin-left: auto; /* <--- ¡ESTO ES IMPORTANTE! */
+  margin-left: auto; 
 }
 
 .user-menu-trigger {
@@ -935,7 +848,7 @@
   color: #333;
   font-weight: bold;
   border: 1px solid #ccc;
-  border-radius: 18px; /* Hace el botón ovalado/circular */
+  border-radius: 18px;
   padding: 6px 16px;
   cursor: pointer;
   font-size: 14px;
@@ -951,7 +864,7 @@
 
 .user-menu-dropdown {
   position: absolute;
-  top: calc(100% + 8px); /* Debajo del botón */
+  top: calc(100% + 8px);
   right: 0;
   background: #ffffff;
   color: #213547;
@@ -974,8 +887,8 @@
   font-size: 15px;
   color: #213547;
   cursor: pointer;
-  text-decoration: none; /* Para los Links */
-  box-sizing: border-box; /* Asegura padding correcto */
+  text-decoration: none; 
+  box-sizing: border-box; 
 }
 
 .user-menu-item:hover {
@@ -991,14 +904,12 @@
   color: #a00;
 }
 
-/* ... (tus estilos existentes) ... */
-
 /* --- Estilos para Tooltip de Información --- */
 .tooltip-container {
   position: static;
   display: inline-block;
-  margin-left: 4px; /* Espacio entre el texto y el icono */
-  vertical-align: middle; /* Alinea el icono con el texto */
+  margin-left: 4px;
+  vertical-align: middle;
 }
 
 .tooltip-trigger {
@@ -1009,7 +920,7 @@
   cursor: pointer;
   font-size: 0.9em;
   line-height: 1;
-  color: inherit; /* Hereda el color del label */
+  color: inherit;
   opacity: 0.7;
   transition: opacity 0.2s;
 }
@@ -1046,7 +957,7 @@
 .tooltip-popup::after {
   content: '';
   position: absolute;
-  top: 100%; /* Abajo del popup */
+  top: 100%; 
   left: 50%;
   margin-left: -5px;
   border-width: 5px;
@@ -1054,43 +965,40 @@
   border-color: #3a3a3a transparent transparent transparent;
 }
 
-/* --- 4. ESTILOS PARA LA POSICIÓN 'UP' (HACIA ARRIBA) --- */
 .tooltip-popup--up {
-  bottom: 100%;            /* Posiciona justo encima del item */
-  margin-bottom: 8px;      /* Añade un espacio */
+  bottom: 100%;
+  margin-bottom: 8px;
 }
 
 .tooltip-popup--up::after {
   content: '';
   position: absolute;
-  top: 100%; /* Abajo del popup */
+  top: 100%; 
   left: 30px; 
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #3a3a3a transparent transparent transparent; /* Flecha apunta abajo */
+  border-color: #3a3a3a transparent transparent transparent;
 }
 
-
-/* --- 5. ESTILOS NUEVOS PARA LA POSICIÓN 'DOWN' (HACIA ABAJO) --- */
 .tooltip-popup--down {
-  top: 100%;             /* Posiciona justo debajo del item */
-  margin-top: 8px;       /* Añade un espacio */
+  top: 100%;
+  margin-top: 8px;
 }
 
 .tooltip-popup--down::after {
   content: '';
   position: absolute;
-  bottom: 100%; /* Arriba del popup */
+  bottom: 100%;
   left: 30px;
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent #3a3a3a transparent; /* Flecha apunta arriba */
+  border-color: transparent transparent #3a3a3a transparent;
 }
 
 .tooltip-popup strong {
-    color: #fff59d; /* Color de acento de las notas */
+    color: #fff59d;
 }
 .tooltip-popup ul {
     padding-left: 20px;
