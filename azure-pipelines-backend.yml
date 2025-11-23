@@ -1,83 +1,83 @@
+# azure-pipelines-backend.yml
 trigger:
   branches:
     include:
-      - main # O la rama que uses para producción
+      - main
   paths:
     include:
-      - simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Backend/*
+      - '**/SaveTheCat.Backend/**' # Solo se ejecuta si cambias el backend
 
 variables:
+  # Rutas basadas en tu estructura de carpetas subida
+  backendRoot: 'simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Backend'
   buildConfiguration: 'Release'
-  backendProjectPath: '**/SaveTheCat.Api.csproj'
-  azureSubscription: 'savethecat-prod-sc' # El nombre que pusiste en Fase 1
+  azureSubscription: 'AzureConnection' # NOMBRE DE TU SERVICE CONNECTION
   webAppName: 'savethecat-prod-api-001'
 
 pool:
   vmImage: 'windows-latest'
 
 steps:
-# 1. Instalar herramienta para Migraciones de EF Core
+# 1. Instalar herramienta para migraciones (Entity Framework)
 - task: DotNetCoreCLI@2
-  displayName: 'Install EF Core Global Tool'
+  displayName: 'Install EF Core Tool'
   inputs:
     command: custom
     custom: tool
     arguments: 'install --global dotnet-ef'
 
-# 2. Restaurar dependencias
+# 2. Restaurar paquetes
 - task: DotNetCoreCLI@2
-  displayName: 'Restore Nuget Packages'
+  displayName: 'Restore Packages'
   inputs:
     command: 'restore'
-    projects: '$(backendProjectPath)'
+    projects: '$(backendRoot)/SaveTheCat.Api/SaveTheCat.Api.csproj'
 
-# 3. Compilar el proyecto
+# 3. Compilar
 - task: DotNetCoreCLI@2
-  displayName: 'Build Backend'
+  displayName: 'Build'
   inputs:
     command: 'build'
-    projects: '$(backendProjectPath)'
+    projects: '$(backendRoot)/SaveTheCat.Api/SaveTheCat.Api.csproj'
     arguments: '--configuration $(buildConfiguration) --no-restore'
 
-# 4. Generar Bundle de Migraciones (Para actualizar la DB automáticamente)
+# 4. Generar bundle de migraciones (crea un .exe para actualizar la DB)
 - task: CmdLine@2
-  displayName: 'Build EF Core Migrations Bundle'
+  displayName: 'Build Migration Bundle'
   inputs:
     script: |
-      cd simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Backend/SaveTheCat.Api
+      cd $(backendRoot)/SaveTheCat.Api
       dotnet ef migrations bundle --self-contained -r win-x64 -o $(Build.ArtifactStagingDirectory)/efbundle.exe
-      
-# 5. Publicar la API (Generar el .zip)
+
+# 5. Publicar API (Zip)
 - task: DotNetCoreCLI@2
   displayName: 'Publish API'
   inputs:
     command: 'publish'
-    projects: '$(backendProjectPath)'
-    publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/drop'
+    projects: '$(backendRoot)/SaveTheCat.Api/SaveTheCat.Api.csproj'
+    publishWebProjects: false
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/drop --runtime win-x64 --self-contained false'
     zipAfterPublish: true
 
-# 6. Desplegar al App Service (API)
+# 6. Desplegar al App Service
 - task: AzureWebApp@1
-  displayName: 'Deploy to Azure App Service'
+  displayName: 'Deploy API to Azure'
   inputs:
     azureSubscription: '$(azureSubscription)'
     appType: 'webApp'
     appName: '$(webAppName)'
     package: '$(Build.ArtifactStagingDirectory)/drop/*.zip'
 
-# 7. Ejecutar Migraciones en Base de Datos (SQL Database)
-# NOTA: Asegúrate de que el App Service o el Agente tenga acceso a la DB.
-# Una forma más segura es usar las credenciales desde KeyVault o Variables de Pipeline.
+# 7. Ejecutar Migraciones en SQL Database
 - task: AzureCLI@2
-  displayName: 'Apply Database Migrations'
+  displayName: 'Update Database Schema'
   inputs:
     azureSubscription: '$(azureSubscription)'
     scriptType: 'pscore'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      # Obtener Connection String desde el App Service (Configuración)
+      # Obtiene la connection string configurada en el App Service en Azure
       $conn = az webapp config connection-string list --resource-group savethecat-prod-rg --name $(webAppName) --query "[?name=='DefaultConnection'].value" -o tsv
       
-      # Ejecutar el bundle contra la base de datos
+      # Ejecuta el actualizador de base de datos
       & "$(Build.ArtifactStagingDirectory)/efbundle.exe" --connection "$conn"
