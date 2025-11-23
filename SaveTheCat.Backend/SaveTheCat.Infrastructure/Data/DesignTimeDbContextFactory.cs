@@ -18,20 +18,26 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
         // Obtiene la ruta al proyecto Api (asumiendo que este archivo está en Infrastructure)
         string apiProjectPath = Path.Combine(Directory.GetCurrentDirectory(), "../SaveTheCat.Api");
 
-        // Construye un IConfiguration para leer el appsettings.
+        // Respeta el entorno solicitado (por defecto Production) y carga los archivos de configuración
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(apiProjectPath)
-            .AddJsonFile("appsettings.Development.json")
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true)
+            .AddEnvironmentVariables()
             .Build();
 
         // Crea las opciones del DbContext
         var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-        // Lee la connection string
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrEmpty(connectionString))
+        // Lee la connection string (priorizando variables de entorno)
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? Environment.GetEnvironmentVariable("DefaultConnection");
+
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
-            throw new InvalidOperationException("No se encontró la 'DefaultConnection' en appsettings.Development.json.");
+            throw new InvalidOperationException("No se encontró la 'DefaultConnection' en los archivos de configuración ni en las variables de entorno.");
         }
 
         builder.UseSqlServer(connectionString);
