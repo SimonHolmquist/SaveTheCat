@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using SaveTheCat.Infrastructure.Data;
-using System.IO;
 
 namespace SaveTheCat.Infrastructure.Data;
 
@@ -25,7 +23,6 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
             .SetBasePath(apiProjectPath)
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile($"appsettings.{environment}.json", optional: true)
-            .AddEnvironmentVariables()
             .Build();
 
         // Crea las opciones del DbContext
