@@ -9,7 +9,7 @@ trigger:
 
 variables:
   # Ruta ajustada a tu carpeta
-  appLocation: 'simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Frontend'
+  appLocation: 'simonholmquist/savethecat/SaveTheCat.Frontend'
   outputLocation: 'dist'
 
 pool:
