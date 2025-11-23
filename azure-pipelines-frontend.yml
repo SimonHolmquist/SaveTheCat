@@ -1,0 +1,25 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Frontend/*
+
+variables:
+  azureSubscription: 'AzureConnection'
+  staticWebAppName: 'savethecat-prod-web-001'
+  # Ruta relativa a la raíz del repo
+  appLocation: 'simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Frontend'
+  outputLocation: 'dist' # Vite por defecto compila a 'dist'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: AzureStaticWebApp@0
+  displayName: 'Build and Deploy Static Web App'
+  inputs:
+    app_location: '$(appLocation)'
+    output_location: '$(outputLocation)'
+    azure_static_web_apps_api_token: $(deployment_token) # Ver nota abajo
