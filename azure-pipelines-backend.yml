@@ -11,7 +11,7 @@ variables:
   # Rutas basadas en tu estructura de carpetas subida
   backendRoot: 'simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Backend'
   buildConfiguration: 'Release'
-  azureSubscription: 'AzureConnection' # NOMBRE DE TU SERVICE CONNECTION
+  azureSubscription: 'savethecat-prod-sc' # NOMBRE DE TU SERVICE CONNECTION
   webAppName: 'savethecat-prod-api-001'
 
 pool:
