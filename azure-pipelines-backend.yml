@@ -9,7 +9,7 @@ trigger:
 
 variables:
   # Rutas basadas en tu estructura de carpetas subida
-  backendRoot: 'simonholmquist/savethecat/SaveTheCat-dc704d3aa211fc901c211a433a3434a787c7aaa1/SaveTheCat.Backend'
+  backendRoot: 'simonholmquist/savethecat/SaveTheCat.Backend'
   buildConfiguration: 'Release'
   azureSubscription: 'savethecat-prod-sc' # NOMBRE DE TU SERVICE CONNECTION
   webAppName: 'savethecat-prod-api-001'
