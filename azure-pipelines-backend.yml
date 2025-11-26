@@ -47,6 +47,7 @@ steps:
   env:
     ASPNETCORE_ENVIRONMENT: 'Production'
     ConnectionStrings__DefaultConnection: 'Server=(localdb)\\mssqllocaldb;Database=SaveTheCatDb;Trusted_Connection=True;MultipleActiveResultSets=true'
+    EmailSettings__ClientAppUrl: 'https://gentle-dune-0f71d0e0f.3.azurestaticapps.net'
   inputs:
     script: |
       cd $(System.DefaultWorkingDirectory)/SaveTheCat.Backend/SaveTheCat.Api
