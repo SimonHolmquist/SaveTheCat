@@ -46,7 +46,7 @@ steps:
   displayName: 'Build EF Core Migrations Bundle'
   env:
     ASPNETCORE_ENVIRONMENT: 'Production'
-    ConnectionStrings__DefaultConnection: 'Server=.;Database=SaveTheCatDev;Trusted_Connection=True;TrustServerCertificate=True;'
+    ConnectionStrings__DefaultConnection: 'Server=(localdb)\\mssqllocaldb;Database=SaveTheCatDb;Trusted_Connection=True;MultipleActiveResultSets=true'
   inputs:
     script: |
       cd $(System.DefaultWorkingDirectory)/SaveTheCat.Backend/SaveTheCat.Api
