@@ -34,7 +34,21 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClientApp",
         policy => policy
-            .WithOrigins(allowedOrigins)
+            .SetIsOriginAllowed(origin =>
+            {
+                if (allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                {
+                    // Allow any Azure Static Web Apps slot for the configured site (origin host format ends with .azurestaticapps.net)
+                    return uri.Host.EndsWith(".azurestaticapps.net", StringComparison.OrdinalIgnoreCase);
+                }
+
+                return false;
+            })
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
