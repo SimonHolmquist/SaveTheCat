@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SaveTheCat.Api;
 using SaveTheCat.Application.Common.Behaviors;
 using SaveTheCat.Domain.Entities;
 using SaveTheCat.Infrastructure;
@@ -20,16 +19,16 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(appAssembly)
 builder.Services.AddValidatorsFromAssembly(appAssembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddAutoMapper(cfg => { }, appAssembly);
+var clientAppUrl = builder.Configuration["EmailSettings:ClientAppUrl"]; // Ya tienes esta variable en el CSV, ¡úsala!
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", policy =>
-    {
-        var frontendUrl = builder.Configuration["EmailSettings:ClientAppUrl"];
-
-        policy.WithOrigins("http://localhost:5173", frontendUrl ?? "")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
+    options.AddPolicy("AllowClientApp",
+        policy => policy
+            .WithOrigins(clientAppUrl) // Usa la variable o pon el string directo: "https://gentle-dune-0f71d0e0f.3.azurestaticapps.net"
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()); // Importante si usas Cookies/Auth tokens
 });
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -112,7 +111,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowReactApp"); // Aplicar la política CORS
+app.UseCors("AllowClientApp"); // Aplicar la política CORS
 app.UseAuthentication(); // Primero autentica
 app.UseAuthorization(); // Luego autoriza
 

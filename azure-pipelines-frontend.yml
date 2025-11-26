@@ -27,4 +27,4 @@ steps:
     # El token se debe configurar en las variables del pipeline (ver abajo)
     azure_static_web_apps_api_token: $(deployment_token)
   env: # <--- AGREGA ESTA SECCIÓN
-    VITE_API_URL: 'https://savethecat-prod-api-001.azurewebsites.net/api'
+    VITE_API_URL: 'savethecat-prod-api-001-f3b8c0ehbsckashy.brazilsouth-01.azurewebsites.net'
