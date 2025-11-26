@@ -17,7 +17,10 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
             .AddEnvironmentVariables() // This extension method is in Microsoft.Extensions.Configuration.EnvironmentVariables
             .Build();
 
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var connectionString =
+            TryGetConnectionStringFromArgs(args) ??
+            configuration.GetConnectionString("DefaultConnection") ??
+            configuration["DefaultConnection"];
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
@@ -27,5 +30,42 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
         optionsBuilder.UseSqlServer(connectionString);
 
         return new ApplicationDbContext(optionsBuilder.Options);
+    }
+
+    private static string? TryGetConnectionStringFromArgs(string[] args)
+    {
+        for (var i = 0; i < args.Length; i++)
+        {
+            var arg = args[i];
+            if (arg.StartsWith("--connection", StringComparison.OrdinalIgnoreCase) ||
+                arg.Equals("-c", StringComparison.OrdinalIgnoreCase))
+            {
+                var value = ExtractValue(arg, args, i);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static string? ExtractValue(string currentArg, string[] args, int index)
+    {
+        if (currentArg.Contains('='))
+        {
+            var split = currentArg.Split('=', 2, StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length == 2)
+            {
+                return split[1];
+            }
+        }
+        else if (index + 1 < args.Length)
+        {
+            return args[index + 1];
+        }
+
+        return null;
     }
 }
