@@ -41,4 +41,4 @@ steps:
     app_location: '$(appLocation)/$(outputLocation)' # Desplegamos la carpeta ya construida
     api_location: '' # Dejamos vacío porque tu API es una Web App separada, no una Azure Function gestionada
     skip_app_build: true # Ya realizamos el build manualmente
-  azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APP_API_TOKEN_PROD)
+    azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APP_API_TOKEN_PROD)
