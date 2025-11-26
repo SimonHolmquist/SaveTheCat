@@ -19,16 +19,22 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(appAssembly)
 builder.Services.AddValidatorsFromAssembly(appAssembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddAutoMapper(cfg => { }, appAssembly);
-var clientAppUrl = builder.Configuration["EmailSettings:ClientAppUrl"]; // Ya tienes esta variable en el CSV, ¡úsala!
+var clientAppUrl = builder.Configuration["EmailSettings:ClientAppUrl"];
+
+// Ensure clientAppUrl is not null or empty before using it in WithOrigins
+if (string.IsNullOrWhiteSpace(clientAppUrl))
+{
+    throw new InvalidOperationException("ClientAppUrl is not configured. Please set 'EmailSettings:ClientAppUrl' in your configuration.");
+}
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClientApp",
         policy => policy
-            .WithOrigins(clientAppUrl) // Usa la variable o pon el string directo: "https://gentle-dune-0f71d0e0f.3.azurestaticapps.net"
+            .WithOrigins(clientAppUrl)
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()); // Importante si usas Cookies/Auth tokens
+            .AllowCredentials());
 });
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
