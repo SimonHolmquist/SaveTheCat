@@ -14,7 +14,7 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true)
             .AddJsonFile($"appsettings.{environment}.json", optional: true)
-            .AddEnvironmentVariables()
+            .AddEnvironmentVariables() // This extension method is in Microsoft.Extensions.Configuration.EnvironmentVariables
             .Build();
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
