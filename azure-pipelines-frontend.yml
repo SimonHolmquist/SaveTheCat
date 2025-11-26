@@ -1,0 +1,32 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - /SaveTheCat.Frontend/*
+
+variables:
+  # Ajusta la ruta a la carpeta del frontend
+  appLocation: '/SaveTheCat.Frontend'
+  outputLocation: 'dist' # Vite por defecto exporta a 'dist'
+  # URL de tu Backend (IMPORTANTE PARA VITE)
+  viteApiUrl: 'https://savethecat-prod-api-001-f3b8c0ehbsckashy.brazilsouth-01.azurewebsites.net/api'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+  submodules: true
+
+- task: AzureStaticWebApp@0
+  displayName: 'Deploy to Static Web App'
+  inputs:
+    app_location: '$(appLocation)'
+    api_location: '' # Dejamos vacío porque tu API es una Web App separada, no una Azure Function gestionada
+    output_location: '$(outputLocation)'
+    azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APP_API_TOKEN_PROD)
+  env:
+    # Inyectamos la variable de entorno para que Vite la tome durante el build
+    VITE_API_URL: $(viteApiUrl)
