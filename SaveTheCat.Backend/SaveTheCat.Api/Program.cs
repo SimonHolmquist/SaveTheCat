@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SaveTheCat.Api.Configuration;
 using SaveTheCat.Application.Common.Behaviors;
 using SaveTheCat.Domain.Entities;
 using SaveTheCat.Infrastructure;
@@ -23,6 +24,16 @@ builder.Services.AddAutoMapper(cfg => { }, appAssembly);
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?.Where(origin => !string.IsNullOrWhiteSpace(origin))
     .ToArray();
+
+builder.Services.AddOptions<JwtSettings>()
+    .Bind(builder.Configuration.GetSection("Jwt"))
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.Key), "Jwt:Key debe estar configurado.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.Issuer), "Jwt:Issuer debe estar configurado.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.Audience), "Jwt:Audience debe estar configurado.")
+    .ValidateOnStart();
+
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
+    ?? throw new InvalidOperationException("La sección Jwt debe estar configurada.");
 
 // Ensure allowedOrigins is not null or empty before using it in WithOrigins
 if (allowedOrigins == null || allowedOrigins.Length == 0)
@@ -88,10 +99,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty)
+            Encoding.UTF8.GetBytes(jwtSettings.Key)
         )
     };
 });

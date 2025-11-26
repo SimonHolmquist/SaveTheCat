@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
+using SaveTheCat.Api.Configuration;
 using SaveTheCat.Application.Dtos; // <-- Namespace Corregido
 using SaveTheCat.Application.Features.Auth.Commands; // <-- Usando Comandos
 using SaveTheCat.Domain.Entities;
@@ -18,12 +20,12 @@ namespace SaveTheCat.Api.Controllers;
 public class AuthController(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
-    IConfiguration config,
+    IOptions<JwtSettings> jwtOptions,
     IMediator mediator) : BaseApiController // Hereda para CurrentUserId
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
-    private readonly IConfiguration _config = config;
+    private readonly JwtSettings _jwtSettings = jwtOptions.Value;
     private readonly IMediator _mediator = mediator; // <-- Inyecta MediatR
 
     [HttpPost("register")]
@@ -178,18 +180,12 @@ public class AuthController(
             new("nickname", user.Nickname)
         };
 
-        var jwtKey = _config["Jwt:Key"];
-        if (string.IsNullOrEmpty(jwtKey))
-        {
-            throw new InvalidOperationException("La clave JWT (Jwt:Key) no está configurada.");
-        }
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
             claims: claims,
             expires: DateTime.Now.AddDays(7),
             signingCredentials: creds
