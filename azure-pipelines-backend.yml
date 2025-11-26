@@ -77,6 +77,9 @@ steps:
 # Una forma más segura es usar las credenciales desde KeyVault o Variables de Pipeline.
 - task: AzureCLI@2
   displayName: 'Apply Database Migrations'
+  env:
+    ASPNETCORE_ENVIRONMENT: 'Production'
+    EmailSettings__ClientAppUrl: 'https://gentle-dune-0f71d0e0f.3.azurestaticapps.net'
   inputs:
     azureSubscription: '$(azureSubscription)'
     scriptType: 'pscore'
