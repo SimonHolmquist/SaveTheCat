@@ -12,6 +12,8 @@ variables:
   backendProjectPath: '**/SaveTheCat.Api.csproj'
   azureSubscription: 'savethecat-prod-sc' # El nombre que pusiste en Fase 1
   webAppName: 'savethecat-prod-api-001'
+  # Se recomienda definir este valor como secreto en el pipeline/variable group
+  sqlConnectionString: ''
 
 pool:
   vmImage: 'windows-latest'
@@ -85,8 +87,19 @@ steps:
     scriptType: 'pscore'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      # Obtener Connection String desde el App Service (Configuración)
-      $conn = az webapp config connection-string list --resource-group savethecat-prod-rg --name $(webAppName) --query "[?name=='DefaultConnection'].value" -o tsv
-      
+      # Intenta usar el valor proporcionado por variable/secreto del pipeline
+      $conn = '$(sqlConnectionString)'
+
+      # Si no hay valor, obtenlo desde la configuración del App Service
+      if (-not $conn) {
+        $conn = az webapp config connection-string list --resource-group savethecat-prod-rg --name $(webAppName) --query "[?name=='DefaultConnection'].value" -o tsv
+      }
+
+      # Validar que se obtuvo una cadena de conexión
+      if (-not $conn) {
+        Write-Error "No se encontró la cadena de conexión 'DefaultConnection'. Configúrala en el pipeline o en el App Service."
+        exit 1
+      }
+
       # Ejecutar el bundle contra la base de datos
       & "$(Build.ArtifactStagingDirectory)/efbundle.exe" --connection "$conn"
