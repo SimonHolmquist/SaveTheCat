@@ -74,7 +74,8 @@ public class AuthController(
             return Unauthorized(new { Message = "Email, nickname o contraseña inválidos." });
         }
 
-        var userDto = new UserDto(user.Id, user.Email!, user.Nickname);
+        var nickname = GetUserNickname(user);
+        var userDto = new UserDto(user.Id, user.Email!, nickname);
         var token = GenerateJwtToken(user);
 
         return Ok(new AuthResponseDto(token, userDto));
@@ -98,7 +99,8 @@ public class AuthController(
         }
 
         // Si la verificación es exitosa, loguea al usuario y devuelve un token
-        var userDto = new UserDto(user.Id, user.Email!, user.Nickname);
+        var nickname = GetUserNickname(user);
+        var userDto = new UserDto(user.Id, user.Email!, nickname);
         var jwtToken = GenerateJwtToken(user);
 
         return Ok(new AuthResponseDto(jwtToken, userDto));
@@ -172,12 +174,14 @@ public class AuthController(
 
     private string GenerateJwtToken(ApplicationUser user)
     {
+        var nickname = GetUserNickname(user);
+
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Name, user.UserName ?? string.Empty),
             new(JwtRegisteredClaimNames.Sub, user.Id),
-            new("nickname", user.Nickname)
+            new("nickname", nickname)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
@@ -192,5 +196,15 @@ public class AuthController(
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private static string GetUserNickname(ApplicationUser user)
+    {
+        if (!string.IsNullOrWhiteSpace(user.Nickname))
+        {
+            return user.Nickname;
+        }
+
+        return user.UserName ?? user.Email ?? string.Empty;
     }
 }
