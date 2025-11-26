@@ -48,7 +48,11 @@ steps:
     script: |
       cd $(System.DefaultWorkingDirectory)/SaveTheCat.Backend/SaveTheCat.Api
       dotnet ef migrations bundle --self-contained -r win-x64 -o $(Build.ArtifactStagingDirectory)/efbundle.exe
-      
+    env:
+      # Esta variable es SOLO para que el DesignTimeDbContextFactory no falle al compilar.
+      # El valor no importa porque no se conecta a la DB en este paso.
+      DefaultConnection: "Server=(localdb)\\mssqllocaldb;Database=TempDb;Trusted_Connection=True;"
+
 # 5. Publicar la API (Generar el .zip)
 - task: DotNetCoreCLI@2
   displayName: 'Publish API'
