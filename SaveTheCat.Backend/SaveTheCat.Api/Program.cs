@@ -11,6 +11,7 @@ using SaveTheCat.Infrastructure;
 using SaveTheCat.Infrastructure.Data;
 using SaveTheCat.Infrastructure.Services;
 using System.Text;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,19 +20,21 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(appAssembly)
 builder.Services.AddValidatorsFromAssembly(appAssembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddAutoMapper(cfg => { }, appAssembly);
-var clientAppUrl = builder.Configuration["EmailSettings:ClientAppUrl"];
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?.Where(origin => !string.IsNullOrWhiteSpace(origin))
+    .ToArray();
 
-// Ensure clientAppUrl is not null or empty before using it in WithOrigins
-if (string.IsNullOrWhiteSpace(clientAppUrl))
+// Ensure allowedOrigins is not null or empty before using it in WithOrigins
+if (allowedOrigins == null || allowedOrigins.Length == 0)
 {
-    throw new InvalidOperationException("ClientAppUrl is not configured. Please set 'EmailSettings:ClientAppUrl' in your configuration.");
+    throw new InvalidOperationException("AllowedOrigins is not configured. Please set 'Cors:AllowedOrigins' in your configuration.");
 }
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowClientApp",
         policy => policy
-            .WithOrigins(clientAppUrl)
+            .WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -55,9 +58,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders(); // Importante para la recuperación de contraseña
+.AddDefaultTokenProviders(); // Importante para la recuperaciÃ³n de contraseÃ±a
 
-// 4. Configurar Autenticación con JWT
+// 4. Configurar AutenticaciÃ³n con JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -123,7 +126,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocurrió un error al migrar la base de datos.");
+        logger.LogError(ex, "OcurriÃ³ un error al migrar la base de datos.");
     }
 }
 
@@ -132,7 +135,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowClientApp"); // Aplicar la política CORS
+app.UseCors("AllowClientApp"); // Aplicar la polÃ­tica CORS
 app.UseAuthentication(); // Primero autentica
 app.UseAuthorization(); // Luego autoriza
 
