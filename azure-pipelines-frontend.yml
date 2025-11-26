@@ -4,11 +4,11 @@ trigger:
       - main
   paths:
     include:
-      - simonholmquist/savethecat/SaveTheCat-f267da8b23da38144964af6aa4e43adab203f416/SaveTheCat.Frontend/*
+      - SaveTheCat.Frontend/*
 
 variables:
   # Ajusta la ruta a la carpeta del frontend
-  appLocation: 'simonholmquist/savethecat/SaveTheCat-f267da8b23da38144964af6aa4e43adab203f416/SaveTheCat.Frontend'
+  appLocation: 'SaveTheCat.Frontend'
   outputLocation: 'dist' # Vite por defecto exporta a 'dist'
   # URL de tu Backend (IMPORTANTE PARA VITE)
   viteApiUrl: 'https://savethecat-prod-api-001-f3b8c0ehbsckashy.brazilsouth-01.azurewebsites.net/api'
