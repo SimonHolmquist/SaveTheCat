@@ -101,5 +101,9 @@ steps:
         exit 1
       }
 
+      # Exponer la cadena de conexión también como variable de entorno para el bundle
+      $env:ConnectionStrings__DefaultConnection = $conn
+      $env:DefaultConnection = $conn
+
       # Ejecutar el bundle contra la base de datos
       & "$(Build.ArtifactStagingDirectory)/efbundle.exe" --connection "$conn"
