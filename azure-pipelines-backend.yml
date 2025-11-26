@@ -4,12 +4,12 @@ trigger:
       - main
   paths:
     include:
-      - /SaveTheCat.Backend/*
+      - simonholmquist/savethecat/SaveTheCat-f267da8b23da38144964af6aa4e43adab203f416/SaveTheCat.Backend/*
 
 variables:
   buildConfiguration: 'Release'
   # Ajusta esta ruta a la carpeta donde está tu .sln o .csproj
-  projectFolder: '/SaveTheCat.Backend'
+  projectFolder: 'simonholmquist/savethecat/SaveTheCat-f267da8b23da38144964af6aa4e43adab203f416/SaveTheCat.Backend'
   azureSubscription: 'savethecat-prod-sc' # <--- PON AQUÍ EL NOMBRE DE TU CONEXIÓN
   webAppName: 'savethecat-prod-api-001'
 
