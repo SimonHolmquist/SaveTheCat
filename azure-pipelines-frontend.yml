@@ -26,3 +26,5 @@ steps:
     output_location: '$(outputLocation)'
     # El token se debe configurar en las variables del pipeline (ver abajo)
     azure_static_web_apps_api_token: $(deployment_token)
+  env: # <--- AGREGA ESTA SECCIÓN
+    VITE_API_URL: 'https://savethecat-prod-api-001.azurewebsites.net/api'

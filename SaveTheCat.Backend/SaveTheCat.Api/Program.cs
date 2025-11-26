@@ -24,7 +24,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // La URL de tu app de React en desarrollo
+        var frontendUrl = builder.Configuration["EmailSettings:ClientAppUrl"];
+
+        policy.WithOrigins("http://localhost:5173", frontendUrl ?? "")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
