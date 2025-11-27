@@ -12,7 +12,6 @@ using SaveTheCat.Infrastructure;
 using SaveTheCat.Infrastructure.Data;
 using SaveTheCat.Infrastructure.Services;
 using System.Text;
-using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +20,6 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(appAssembly)
 builder.Services.AddValidatorsFromAssembly(appAssembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddAutoMapper(cfg => { }, appAssembly);
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?.Where(origin => !string.IsNullOrWhiteSpace(origin))
-    .ToArray();
 
 builder.Services.AddOptions<JwtSettings>()
     .Bind(builder.Configuration.GetSection("Jwt"))
@@ -35,34 +31,16 @@ builder.Services.AddOptions<JwtSettings>()
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
     ?? throw new InvalidOperationException("La sección Jwt debe estar configurada.");
 
-// Ensure allowedOrigins is not null or empty before using it in WithOrigins
-if (allowedOrigins == null || allowedOrigins.Length == 0)
-{
-    throw new InvalidOperationException("AllowedOrigins is not configured. Please set 'Cors:AllowedOrigins' in your configuration.");
-}
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowClientApp",
-        policy => policy
-            .SetIsOriginAllowed(origin =>
-            {
-                if (allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
-                {
-                    // Allow any Azure Static Web Apps slot for the configured site (origin host format ends with .azurestaticapps.net)
-                    return uri.Host.EndsWith(".azurestaticapps.net", StringComparison.OrdinalIgnoreCase);
-                }
-
-                return false;
-            })
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("https://gentle-dune-0f71d0e0f.3.azurestaticapps.net", "http://localhost:5173")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        });
 });
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -160,9 +138,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowClientApp"); // Aplicar la política CORS
-app.UseAuthentication(); // Primero autentica
-app.UseAuthorization(); // Luego autoriza
+app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
