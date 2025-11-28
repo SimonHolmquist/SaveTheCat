@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Note } from "../types/note";
 // Importa el cliente API
 import apiClient from "../api/apiClient";
+import { DEFAULT_NOTE_COLOR, getColorForBeat } from "../utils/beatColors";
 
 const NOTE_W_PERCENT = 0.08;
 const MAX_NOTES = 40;
@@ -21,7 +22,16 @@ export function useStickyNotes(projectId: string | null) {
       try {
         // GET /api/projects/{projectId}/notes
         const response = await apiClient.get(`/projects/${projectId}/notes`);
-        setNotes(response.data);
+
+        const normalizedNotes = response.data.map((note: Note) => {
+          if (note.beatItem) {
+            return { ...note, color: getColorForBeat(note.beatItem) };
+          }
+
+          return { ...note, color: note.color || DEFAULT_NOTE_COLOR };
+        });
+
+        setNotes(normalizedNotes);
       } catch (error) {
         console.error("Error al cargar las notas:", error);
       }
@@ -50,7 +60,7 @@ export function useStickyNotes(projectId: string | null) {
       emotionalCharge: "+/-",
       emotionalDescription: "",
       conflict: "",
-      color: "#fff59d",
+      color: DEFAULT_NOTE_COLOR,
       beatItem: ""
     };
 
@@ -72,8 +82,18 @@ export function useStickyNotes(projectId: string | null) {
 
     // Actualización optimista del estado de React
     setNotes((prev) => {
-      const newNotes = prev.map((n) => (n.id === id ? { ...n, ...newContent } : n));
-      
+      const newNotes = prev.map((n) => {
+        if (n.id !== id) return n;
+
+        const updatedNote = { ...n, ...newContent } as Note;
+
+        if ("beatItem" in newContent) {
+          updatedNote.color = getColorForBeat(newContent.beatItem);
+        }
+
+        return updatedNote;
+      });
+
       // Busca la nota recién actualizada para enviarla a la API
       const updatedNote = newNotes.find(n => n.id === id);
 
@@ -90,7 +110,7 @@ export function useStickyNotes(projectId: string | null) {
             // Aquí podrías implementar lógica para revertir el cambio si la API falla
           });
       }
-      
+
       return newNotes;
     });
   }, [projectId]);
@@ -109,20 +129,6 @@ export function useStickyNotes(projectId: string | null) {
 
   }, [projectId]);
 
-  // Actualización optimizada solo para color
-  const updateNoteColor = useCallback((id: string, color: string) => {
-    if (!projectId) return;
-
-    // Actualización optimista del estado
-    setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, color } : n)));
-    
-    // Llama al endpoint PATCH optimizado (fire-and-forget)
-    const colorDto = { color };
-    apiClient.patch(`/projects/${projectId}/notes/${id}/color`, colorDto)
-      .catch(err => console.error("Error al actualizar color:", err));
-
-  }, [projectId]);
-
   const removeNote = useCallback(async (id: string) => {
     if (!projectId) return;
     
@@ -138,5 +144,5 @@ export function useStickyNotes(projectId: string | null) {
   }, [projectId]);
 
   // Ya no usamos createId ni load/saveNotes
-  return { notes, addNoteAt, updateNote, updateNotePosition, updateNoteColor, removeNote, NOTE_W_PERCENT, MAX_NOTES } as const;
+  return { notes, addNoteAt, updateNote, updateNotePosition, removeNote, NOTE_W_PERCENT, MAX_NOTES } as const;
 }

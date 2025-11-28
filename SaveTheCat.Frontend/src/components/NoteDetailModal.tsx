@@ -2,6 +2,7 @@ import React from "react";
 import type { Note, EmotionalCharge } from "../types/note";
 import SceneHeadingInput from "./SceneHeadingInput";
 import TextAreaWithSuggestions from "./TextAreaWithSuggestions";
+import { getColorForBeat } from "../utils/beatColors";
 
 type Props = {
     isOpen: boolean;
@@ -41,7 +42,8 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
     };
 
     const handleBeatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        onUpdate(note.id, { beatItem: e.target.value });
+        const beatItem = e.target.value;
+        onUpdate(note.id, { beatItem, color: getColorForBeat(beatItem) });
     };
 
     const handleTextAreaChange = (
