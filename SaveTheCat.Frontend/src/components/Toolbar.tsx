@@ -11,6 +11,11 @@ const PALETTE_COLORS = [
   "#81d4fa",
   "#a5d6a7",
   "#e6ee9c",
+  "#ffcc80",
+  "#ffd54f",
+  "#c5e1a5",
+  "#d7ccc8",
+  "#cfd8dc",
 ];
 
 type Props = {
