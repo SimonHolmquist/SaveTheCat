@@ -1,8 +1,10 @@
+// [file-path]: simonholmquist/savethecat/SaveTheCat-870e49267253fe7ea3a3d49bc18d5da1b2e9e0ac/SaveTheCat.Frontend/src/components/NoteDetailModal.tsx
+
 import React from "react";
 import type { Note, EmotionalCharge } from "../types/note";
 import SceneHeadingInput from "./SceneHeadingInput";
 import TextAreaWithSuggestions from "./TextAreaWithSuggestions";
-import { getColorForBeat } from "../utils/beatColors";
+import { getColorForBeat, BEAT_STRUCTURE } from "../utils/beatColors";
 
 type Props = {
     isOpen: boolean;
@@ -14,30 +16,11 @@ type Props = {
 };
 
 const CHARGES: EmotionalCharge[] = ["+/-", "-/+", "+/+", "-/-"];
-const BEAT_OPTIONS = [
-    { value: "", label: "-- Sin Asignar --" },
-    { value: "openingImage", label: "Imagen de apertura" },
-    { value: "themeStated", label: "Declaración del tema" },
-    { value: "setUp", label: "Planteamiento" },
-    { value: "catalyst", label: "Catalizador" },
-    { value: "debate", label: "Debate" },
-    { value: "breakIntoTwo", label: "Transición al Acto 2" },
-    { value: "bStory", label: "Trama B" },
-    { value: "funAndGames", label: "Juegos y risas" },
-    { value: "midpoint", label: "Punto intermedio" },
-    { value: "badGuysCloseIn", label: "Los malos estrechan..." },
-    { value: "allIsLost", label: "Todo está perdido" },
-    { value: "darkNightOfTheSoul", label: "Noche oscura" },
-    { value: "breakIntoThree", label: "Transición al Acto 3" },
-    { value: "finale", label: "Final" },
-    { value: "finalImage", label: "Imagen de cierre" },
-];
 
 export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpenLocationsModal, onAddLocation }: Props) {
     if (!isOpen || !note) return null;
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        // Cierra el modal si se hace clic en el fondo oscuro
         if (e.target === e.currentTarget) {
             onClose();
         }
@@ -45,7 +28,11 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
 
     const handleBeatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const beatItem = e.target.value;
-        onUpdate(note.id, { beatItem, color: getColorForBeat(beatItem) });
+        // Al cambiar el Beat, forzamos la actualización del color
+        onUpdate(note.id, {
+            beatItem,
+            color: getColorForBeat(beatItem)
+        });
     };
 
     const handleTextAreaChange = (
@@ -67,7 +54,6 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
     };
 
     const handleInput = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
-        // Auto-grow logic simple para el modal
         const target = e.currentTarget;
         target.style.height = "auto";
         target.style.height = `${target.scrollHeight}px`;
@@ -78,14 +64,16 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
 
     return (
         <div className="modal__overlay" onClick={handleOverlayClick}>
-            <div className="modal__content note-detail-modal" style={{ backgroundColor: note.color }}>
+            <div className="modal__content note-detail-modal" style={{ borderTop: `8px solid ${note.color}` }}>
                 <div className="note-detail-modal__header">
                     <h3>Detalles de la Escena</h3>
                     <button onClick={onClose} className="modal__close-btn">✕</button>
                 </div>
 
                 <div className="note-detail-modal__body">
-                    
+
+
+
                     <label className="detail-label">TÍTULO</label>
                     <SceneHeadingInput
                         value={note.sceneHeading}
@@ -147,29 +135,48 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                         />
                     </div>
                 </div>
-                <div style={{ marginBottom: '8px' }}>
-                        <label className="detail-label">VINCULAR A HOJA DE TRAMA</label>
-                        <select
-                            value={note.beatItem || ""}
-                            onChange={handleBeatChange}
-                            style={{
-                                width: '100%',
-                                padding: '6px',
-                                borderRadius: '4px',
-                                border: '1px solid rgba(0,0,0,0.1)',
-                                backgroundColor: 'rgba(255,255,255,0.5)',
-                                color: "black"
-                            }}
-                        >
-                            {BEAT_OPTIONS.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                        </select>
+
+                <div style={{ background: '#f5f5f5', padding: '10px', borderRadius: '6px', border: '1px solid #e0e0e0' }}>
+                    <label className="detail-label" style={{ display: 'block', marginBottom: '6px' }}>VINCULAR A HOJA DE TRAMA (DEFINE EL COLOR)</label>
+                    <select
+                        value={note.beatItem || ""}
+                        onChange={handleBeatChange}
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            borderRadius: '4px',
+                            border: '1px solid #ccc',
+                            backgroundColor: 'white',
+                            color: "#333",
+                            fontSize: '14px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="">-- Sin Asignar (Nota Libre) --</option>
+                        {BEAT_STRUCTURE.map(beat => (
+                            <option key={beat.key} value={beat.key}>
+                                {beat.label}
+                            </option>
+                        ))}
+                    </select>
+                    {/* Pequeña previsualización del color seleccionado */}
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        Color asignado:
+                        <span style={{
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '50%',
+                            backgroundColor: note.color,
+                            border: '1px solid #ccc',
+                            display: 'inline-block'
+                        }}></span>
                     </div>
+                </div>
 
                 <div className="modal__buttons">
                     <button className="modal__btn" onClick={onClose}>Cerrar</button>
                 </div>
+                
             </div>
         </div>
     );
