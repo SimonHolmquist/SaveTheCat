@@ -1,5 +1,6 @@
 import React from "react";
 import type { Note } from "../types/note";
+import { useTranslation } from "react-i18next";
 
 type Props = {
     note: Note;
@@ -20,6 +21,8 @@ export default function StickyNote({
     isDragging,
     isSelected
 }: Props) {
+
+    const { t } = useTranslation()
 
     const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
@@ -61,7 +64,7 @@ export default function StickyNote({
 
             <div className="note__preview-content">
                 <span className="note__preview-title">
-                    {note.sceneHeading || "NUEVA ESCENA"}
+                    {note.sceneHeading || t("board.newScene")}
                 </span>
                 {/* Indicadores visuales pequeños si tiene contenido */}
                 <div className="note__indicators">
