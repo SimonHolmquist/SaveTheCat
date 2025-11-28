@@ -1,4 +1,5 @@
 // [file-path]: simonholmquist/savethecat/SaveTheCat-870e49267253fe7ea3a3d49bc18d5da1b2e9e0ac/SaveTheCat.Frontend/src/utils/beatColors.ts
+import i18n from "../i18n";
 
 export const DEFAULT_NOTE_COLOR = "#fff59d";
 
@@ -34,5 +35,5 @@ export const getColorForBeat = (beatItem?: string | null) => {
 
 export const getLabelForBeat = (beatItem?: string | null) => {
     const beat = BEAT_STRUCTURE.find(b => b.key === beatItem);
-    return beat ? beat.label : "-- Sin Asignar --";
+    return beat ? beat.label : i18n.t('noteDetail.unassigned');
 };

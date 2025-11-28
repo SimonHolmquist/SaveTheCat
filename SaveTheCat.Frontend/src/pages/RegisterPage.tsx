@@ -1,26 +1,7 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
-// Tu lógica de validación de contraseña
-const validatePassword = (password: string): string | null => {
-  if (password.length < 8) {
-    return "La contraseña debe tener al menos 8 caracteres.";
-  }
-  if (!/[a-z]/.test(password)) {
-    return "Debe contener al menos una minúscula.";
-  }
-  if (!/[A-Z]/.test(password)) {
-    return "Debe contener al menos una mayúscula.";
-  }
-  if (!/\d/.test(password)) {
-    return "Debe contener al menos un dígito.";
-  }
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password)) {
-    return "Debe contener al menos un caracter especial (ej: !@#$).";
-  }
-  return null; // Es válida
-};
+import { useTranslation } from "react-i18next";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -30,6 +11,26 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const { register } = useAuth();
   const { currentUser } = useAuth();
+  const { t } = useTranslation();
+
+  const validatePassword = useCallback((pwd: string): string | null => {
+    if (pwd.length < 8) {
+      return t('auth.validation.password.minLength');
+    }
+    if (!/[a-z]/.test(pwd)) {
+      return t('auth.validation.password.lowercase');
+    }
+    if (!/[A-Z]/.test(pwd)) {
+      return t('auth.validation.password.uppercase');
+    }
+    if (!/\d/.test(pwd)) {
+      return t('auth.validation.password.digit');
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(pwd)) {
+      return t('auth.validation.password.special');
+    }
+    return null;
+  }, [t]);
   
   if (currentUser) {
     return <Navigate to="/" replace />;
@@ -41,7 +42,7 @@ export default function RegisterPage() {
 
     // 1. Validar campos vacíos
     if (!email || !nickname || !password || !confirmPassword) {
-      setError("Por favor, completa todos los campos.");
+      setError(t('auth.errors.requiredFields'));
       return;
     }
 
@@ -54,7 +55,7 @@ export default function RegisterPage() {
 
     // 3. Validar que contraseñas coincidan
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setError(t('auth.errors.passwordMismatch'));
       return;
     }
 
@@ -67,7 +68,7 @@ export default function RegisterPage() {
     } catch (err: any) {
       console.error(err);
       // --- Error real de la API ---
-      const errorMsg = err.response?.data?.message || "Error al registrarse. Inténtalo de nuevo.";
+      const errorMsg = err.response?.data?.message || t('auth.register.error');
       setError(errorMsg);
     }
   };
@@ -75,11 +76,11 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-form-container">
-        <h2>Registrarse</h2>
+        <h2>{t('auth.register.title')}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <p className="error-message">{error}</p>}
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.common.email')}</label>
             <input
               type="email"
               id="email"
@@ -88,7 +89,7 @@ export default function RegisterPage() {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="nickname">Nickname</label>
+            <label htmlFor="nickname">{t('auth.common.nickname')}</label>
             <input
               type="text"
               id="nickname"
@@ -97,7 +98,7 @@ export default function RegisterPage() {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="password">{t('auth.common.password')}</label>
             <input
               type="password"
               id="password"
@@ -106,7 +107,7 @@ export default function RegisterPage() {
             />
           </div>
            <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+            <label htmlFor="confirmPassword">{t('auth.common.confirmPassword')}</label>
             <input
               type="password"
               id="confirmPassword"
@@ -115,12 +116,12 @@ export default function RegisterPage() {
             />
           </div>
           <button type="submit" className="auth-button">
-            Crear Cuenta
+            {t('auth.register.submit')}
           </button>
         </form>
         <div className="auth-links">
           <Link to="/login" className="auth-link">
-            ¿Ya tienes cuenta? Inicia Sesión
+            {t('auth.register.backToLogin')}
           </Link>
         </div>
       </div>

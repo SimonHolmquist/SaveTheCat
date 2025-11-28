@@ -163,7 +163,7 @@ export default function ProjectModal({
 
                 <div className="modal__buttons">
                     <button type="button" className="modal__btn" onClick={handleClose}>
-                        Cerrar
+                        {t('common.close')}
                     </button>
                 </div>
             </div>
@@ -172,7 +172,7 @@ export default function ProjectModal({
                 isOpen={deletingId !== null}
                 onCancel={handleCancelDelete}
                 onConfirm={handleConfirmDelete}
-                message={t('modals.confirmDeleteEntity', getProjectName(deletingId || ""))}
+                message={t('modals.confirmDeleteEntity', { name: getProjectName(deletingId || "") })}
             />
         </div>
     );

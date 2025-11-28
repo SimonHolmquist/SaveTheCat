@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate, Navigate } from 'react-router-dom';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 type Status = 'loading' | 'success' | 'error';
 
@@ -11,7 +12,8 @@ export default function VerifyEmailConfirmPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   // Combinamos las dos llamadas a useAuth en una sola
-  const { loginWithToken, currentUser } = useAuth(); 
+  const { loginWithToken, currentUser } = useAuth();
+  const { t } = useTranslation();
   
   // Extraemos token y email de la URL
   const { token, email } = useMemo(() => ({
@@ -71,19 +73,19 @@ export default function VerifyEmailConfirmPage() {
     return (
       <div className="auth-page">
         <div className="auth-form-container" style={{ textAlign: 'center' }}>
-          <h2>Verificando tu correo...</h2>
+          <h2>{t('auth.verifyEmailConfirm.loading')}</h2>
         </div>
       </div>
     );
   }
-  
+
   if (status === 'error') {
      return (
       <div className="auth-page">
         <div className="auth-form-container" style={{ textAlign: 'center' }}>
-          <h2>Error de Verificación</h2>
+          <h2>{t('auth.verifyEmailConfirm.errorTitle')}</h2>
           <p style={{ color: '#ffab91' }}>
-            No se pudo verificar tu correo. El enlace puede ser inválido o haber caducado.
+            {t('auth.verifyEmailConfirm.errorMessage')}
           </p>
         </div>
       </div>
@@ -94,12 +96,12 @@ export default function VerifyEmailConfirmPage() {
   return (
     <div className="auth-page">
       <div className="auth-form-container" style={{ textAlign: 'center' }}>
-        <h2 style={{ color: '#a5d6a7' }}>¡Correo Verificado!</h2>
+        <h2 style={{ color: '#a5d6a7' }}>{t('auth.verifyEmailConfirm.successTitle')}</h2>
         <p style={{ color: '#ccc' }}>
-          Tu cuenta ha sido verificada con éxito.
+          {t('auth.verifyEmailConfirm.successMessage')}
         </p>
         <p style={{ color: '#ccc', marginTop: '20px' }}>
-          Serás redireccionado a la aplicación en 5 segundos...
+          {t('auth.verifyEmailConfirm.redirect')}
         </p>
       </div>
     </div>
