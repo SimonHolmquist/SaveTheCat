@@ -3,6 +3,7 @@ import GenreInput from "./GenreInput";
 import TextAreaWithSuggestions from "./TextAreaWithSuggestions";
 import apiClient from "../api/apiClient"; 
 import type { BeatSheetDto, UpdateBeatSheetDto } from "../types/beatSheet";
+import { getColorForBeat } from "../utils/beatColors";
 
 const AUTOSAVE_DELAY = 1000;
 
@@ -220,11 +221,14 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
         // 'title' va hacia abajo, el resto hacia arriba
         const tooltipDirection = key === 'title' ? 'down' : 'up';
 
+        const fieldColor = getColorForBeat(key);
+
         return (
           <div
             key={key}
             className="beat-sheet__item"
             data-item-label={key === 'date' ? "fecha" : undefined}
+            style={{backgroundColor: fieldColor}}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                 
@@ -244,6 +248,7 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
               <div
                 className="beat-sheet__input beat-sheet__input--static"
                 aria-label={label}
+                style={{backgroundColor: fieldColor}}
               >
                 {value}
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, type CSSProperties } from "react";
 import { useEntitiesContext } from "../context/EntityContext";
 
 // Helper para auto-grow
@@ -17,7 +17,8 @@ type Props = {
     className: string;
     rows: number;
     placeholder?: string;
-    disabled?: boolean; // <-- 1. AÑADIR ESTA LÍNEA
+    disabled?: boolean;
+    style?: CSSProperties; // <-- 1. AÑADIR ESTA LÍNEA
 };
 
 // Estado para gestionar la posición del popup
@@ -36,7 +37,8 @@ export default function TextAreaWithSuggestions({
     className,
     rows,
     placeholder,
-    disabled, // <-- 2. AÑADIR ESTA LÍNEA
+    disabled,
+    style // <-- 2. AÑADIR ESTA LÍNEA
 }: Props) {
     const { characters } = useEntitiesContext();
     const characterNames = useMemo(() => characters.map(c => c.name), [characters]);
@@ -165,6 +167,7 @@ export default function TextAreaWithSuggestions({
             <textarea
                 ref={textareaRef}
                 className={className}
+                style={style}
                 rows={rows}
                 value={inputValue}
                 onChange={handleInputChange}

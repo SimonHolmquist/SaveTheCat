@@ -64,15 +64,13 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
 
     return (
         <div className="modal__overlay" onClick={handleOverlayClick}>
-            <div className="modal__content note-detail-modal" style={{ borderTop: `8px solid ${note.color}` }}>
+            <div className="modal__content note-detail-modal" style={{ backgroundColor: note.color }}>
                 <div className="note-detail-modal__header">
                     <h3>Detalles de la Escena</h3>
                     <button onClick={onClose} className="modal__close-btn">✕</button>
                 </div>
 
                 <div className="note-detail-modal__body">
-
-
 
                     <label className="detail-label">TÍTULO</label>
                     <SceneHeadingInput
@@ -136,7 +134,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                     </div>
                 </div>
 
-                <div style={{ background: '#f5f5f5', padding: '10px', borderRadius: '6px', border: '1px solid #e0e0e0' }}>
+                <div style={{ background: 'rgba(255,255,255,0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)' }}>
                     <label className="detail-label" style={{ display: 'block', marginBottom: '6px' }}>VINCULAR A HOJA DE TRAMA (DEFINE EL COLOR)</label>
                     <select
                         value={note.beatItem || ""}
@@ -176,7 +174,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                 <div className="modal__buttons">
                     <button className="modal__btn" onClick={onClose}>Cerrar</button>
                 </div>
-                
+
             </div>
         </div>
     );

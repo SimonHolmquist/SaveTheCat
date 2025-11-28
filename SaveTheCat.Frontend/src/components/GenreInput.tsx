@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, type CSSProperties } from "react";
 
 // Los 10 géneros de "¡Salva al gato!"
 const SAVE_THE_CAT_GENRES = [
@@ -32,9 +32,10 @@ type Props = {
     onChange: (newValue: string) => void;
     onInput: (e: React.SyntheticEvent<HTMLTextAreaElement>) => void;
     ariaLabel: string;
+    style?: CSSProperties;
 };
 
-export default function GenreInput({ value, onChange, onInput, ariaLabel }: Props) {
+export default function GenreInput({ value, onChange, onInput, ariaLabel, style }: Props) {
     const [inputValue, setInputValue] = useState(value);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
@@ -132,6 +133,7 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel }: Prop
             <textarea
                 ref={textareaRef}
                 className="beat-sheet__input"
+                style={style}
                 rows={1}
                 value={inputValue}
                 onChange={handleInputChange}
