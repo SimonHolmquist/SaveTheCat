@@ -45,20 +45,20 @@ export default function App() {
         addEntity: addCharacter,
         updateEntity: updateCharacter,
         removeEntity: removeCharacter
-    } = useEntities<Character>(activeId, 'characters'); 
+    } = useEntities<Character>(activeId, 'characters');
 
     const {
         entities: locations,
         addEntity: addLocation,
         updateEntity: updateLocation,
         removeEntity: removeLocation
-    } = useEntities<Location>(activeId, 'locations'); 
+    } = useEntities<Location>(activeId, 'locations');
 
     const boardRef = useRef<HTMLDivElement>(null);
     const toolbarRef = useRef<HTMLDivElement>(null);
     const beatSheetRef = useRef<HTMLDivElement>(null);
     const footerRef = useRef<HTMLElement>(null); // 1. Nueva referencia para el footer
-    
+
     // Referencias para solucionar los bugs
     const initializationRef = useRef(false); // Evita doble creación de proyecto
     const dragInteractionRef = useRef(false); // Distingue entre click y arrastre
@@ -68,10 +68,10 @@ export default function App() {
         offsetX: number;
         offsetY: number;
     } | null>(null);
-    
+
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-    
+
     const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
     type ModalType = "characters" | "locations" | "projects" | null;
     const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -102,17 +102,15 @@ export default function App() {
         },
     ], []);
 
-    // --- BUG FIX 1: Creación de proyecto único ---
     useEffect(() => {
         if (isLoadingProjects) return;
-        
-        // Usamos la referencia para asegurar que solo entre una vez
+
         if (!initializationRef.current && projects.length === 0 && !activeProjectId) {
             initializationRef.current = true;
             addProject("MI PRIMER PROYECTO");
         }
     }, [projects, activeProjectId, addProject, isLoadingProjects]);
-    
+
     useEffect(() => {
         setSelectedNoteId(null);
         setEditingNoteId(null);
@@ -144,9 +142,9 @@ export default function App() {
     const handleDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>, note: Note) => {
         if (!boardRef.current) return;
         if ((e.target as HTMLElement).closest(".note__close-pin")) return;
-        
+
         e.stopPropagation();
-        
+
         // --- BUG FIX 2: Resetear bandera de arrastre ---
         dragInteractionRef.current = false;
 
@@ -220,7 +218,7 @@ export default function App() {
 
     const noteBeingEdited = useMemo(() =>
         notes.find(n => n.id === editingNoteId) || null
-    , [notes, editingNoteId]);
+        , [notes, editingNoteId]);
 
     const markTutorialAsSeen = useCallback(() => {
         if (currentUser) {
@@ -261,7 +259,7 @@ export default function App() {
                         projectId={activeProjectId}
                         projectName={activeProjectName}
                     />
-                    
+
                     <StickyBoard
                         ref={boardRef}
                         notes={notes}

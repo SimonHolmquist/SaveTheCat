@@ -55,13 +55,13 @@ const StickyBoard = forwardRef<HTMLDivElement, Props>(({
             <div className="board__act-label board__act-label--1" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
                 {t('board.act1')}
             </div>
-            <div className="board__act-label board__act-label--2a" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
+            <div className="board__act-label board__act-label--2" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
                 {t('board.act2a')}
             </div>
-            <div className="board__act-label board__act-label--2b" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
+            <div className="board__act-label board__act-label--3" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
                 {t('board.act2b')}
             </div>
-            <div className="board__act-label board__act-label--3" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
+            <div className="board__act-label board__act-label--4" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
                 {t('board.act3')}
             </div>
 

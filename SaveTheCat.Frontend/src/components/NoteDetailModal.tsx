@@ -18,6 +18,7 @@ const CHARGES: EmotionalCharge[] = ["+/-", "-/+", "+/+", "-/-"];
 
 export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpenLocationsModal, onAddLocation }: Props) {
     if (!isOpen || !note) return null;
+    const { t } = useTranslation()
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -76,13 +77,13 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                         value={note.sceneHeading}
                         onChange={handleSceneHeadingChange}
                         onInput={handleInput}
-                        placeholder="(INT. o EXT) - LOCACIÓN - TIEMPO"
+                        placeholder={t('noteDetail.placeholders.heading')}
                         ariaLabel="Encabezado de escena"
                         onOpenLocationsModal={onOpenLocationsModal}
                         onAddLocation={onAddLocation}
                     />
 
-                    <label className="detail-label">DESCRIPCIÓN</label>
+                    <label className="detail-label">{t('noteDetail.description')}</label>
                     <TextAreaWithSuggestions
                         className="note__textarea note__description"
                         rows={4}
@@ -149,10 +150,10 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                             cursor: 'pointer'
                         }}
                     >
-                        <option value="">-- Sin Asignar (Nota Libre) --</option>
+                        <option value="">{t('noteDetail.unassigned')}</option>
                         {BEAT_STRUCTURE.map(beat => (
                             <option key={beat.key} value={beat.key} style={{ backgroundColor: beat.color, color: '#000' }}>
-                                {beat.label}
+                                {t(`beatSheet.beats.${beat.key}`)}
                             </option>
                         ))}
                     </select>    
