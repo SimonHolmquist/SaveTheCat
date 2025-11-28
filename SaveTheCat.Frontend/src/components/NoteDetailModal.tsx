@@ -9,6 +9,8 @@ type Props = {
     onClose: () => void;
     note: Note | null;
     onUpdate: (id: string, newContent: Partial<Omit<Note, "id" | "x" | "y">>) => void;
+    onOpenLocationsModal: () => void;
+    onAddLocation: (name: string) => void;
 };
 
 const CHARGES: EmotionalCharge[] = ["+/-", "-/+", "+/+", "-/-"];
@@ -31,7 +33,7 @@ const BEAT_OPTIONS = [
     { value: "finalImage", label: "Imagen de cierre" },
 ];
 
-export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Props) {
+export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpenLocationsModal, onAddLocation }: Props) {
     if (!isOpen || !note) return null;
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -91,6 +93,8 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
                         onInput={handleInput}
                         placeholder="(INT. o EXT) - LOCACIÓN - TIEMPO"
                         ariaLabel="Encabezado de escena"
+                        onOpenLocationsModal={onOpenLocationsModal}
+                        onAddLocation={onAddLocation}
                     />
 
                     <label className="detail-label">DESCRIPCIÓN</label>

@@ -20,16 +20,29 @@ type Props = {
     onInput: (e: React.SyntheticEvent<HTMLTextAreaElement>) => void;
     placeholder: string;
     ariaLabel: string;
+    onAddLocation: (name: string) => void;
+    onOpenLocationsModal: () => void;
 };
 
-export default function SceneHeadingInput({ value, onChange, onInput, placeholder, ariaLabel }: Props) {
+const ADD_LOCATION_LABEL = "AGREGAR LOCACION";
+
+export default function SceneHeadingInput({
+    value,
+    onChange,
+    onInput,
+    placeholder,
+    ariaLabel,
+    onAddLocation,
+    onOpenLocationsModal
+}: Props) {
     const [inputValue, setInputValue] = useState(value);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    
+
     // Estado para saber qué parte estamos editando: 'prefix' | 'location' | 'time'
     const [currentPart, setCurrentPart] = useState<'prefix' | 'location' | 'time' | null>(null);
+    const [currentQuery, setCurrentQuery] = useState("");
 
     const { locations } = useEntitiesContext();
     const locationNames = useMemo(() => locations.map(l => l.name.toUpperCase()), [locations]);
@@ -72,12 +85,45 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
         return { part: 'location' as const, query };
     };
 
+    const parseHeading = (text: string) => {
+        const trimmed = text.trimStart();
+        const prefix = PREFIXES.find((p) => trimmed.startsWith(p)) ?? "";
+
+        const afterPrefix = prefix ? trimmed.substring(prefix.length).trimStart() : trimmed;
+        const dashIndex = afterPrefix.indexOf("-");
+
+        if (dashIndex === -1) {
+            return { prefix, location: afterPrefix.trim(), time: "" };
+        }
+
+        const location = afterPrefix.substring(0, dashIndex).trim();
+        const time = afterPrefix.substring(dashIndex + 1).trim();
+        return { prefix, location, time };
+    };
+
+    const formatHeading = (prefix: string, location: string, time: string) => {
+        const prefixPart = prefix ? `${prefix} ` : "";
+        const locationPart = location ? `${location} ` : "";
+        const dashPart = prefix || location || time ? "- " : "";
+        const timePart = time ? `${time}` : "";
+
+        return `${prefixPart}${locationPart}${dashPart}${timePart}`;
+    };
+
     const updateSuggestions = (element: HTMLTextAreaElement) => {
         const text = element.value.toUpperCase(); // Normalizamos para búsqueda
         const cursorIndex = element.selectionStart;
 
         const { part, query } = analyzeCursorPosition(text, cursorIndex);
         setCurrentPart(part);
+        setCurrentQuery(query);
+
+        if (part === 'location' && locationNames.length === 0) {
+            setSuggestions([ADD_LOCATION_LABEL]);
+            setShowSuggestions(true);
+            setActiveSuggestionIndex(0);
+            return;
+        }
 
         let source: string[] = [];
         if (part === 'prefix') source = PREFIXES;
@@ -92,9 +138,13 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
             filtered = source.filter(item => item.startsWith(query));
         }
 
+        if ((part === 'prefix' || part === 'time') && filtered.length === 0) {
+            filtered = source;
+        }
+
         setSuggestions(filtered);
         setShowSuggestions(filtered.length > 0);
-        
+
         // IMPORTANTE: Solo reseteamos el índice si la lista cambió drásticamente o cerramos.
         // Pero para mantenerlo simple y funcional, lo reseteamos al filtrar.
         // El problema de navegación se soluciona en handleKeyUp.
@@ -115,6 +165,17 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
 
     // Maneja navegación (no debe resetear el índice)
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === "Enter" || e.key === "Tab") {
+            if ((!showSuggestions || suggestions.length === 0) && currentPart === 'location') {
+                const normalized = currentQuery.trim();
+                if (normalized) {
+                    e.preventDefault();
+                    handleLocationSelection(normalized.toUpperCase());
+                }
+                return;
+            }
+        }
+
         if (!showSuggestions || suggestions.length === 0) return;
 
         if (e.key === "ArrowDown") {
@@ -141,57 +202,64 @@ export default function SceneHeadingInput({ value, onChange, onInput, placeholde
         updateSuggestions(e.currentTarget);
     };
 
-    const selectSuggestion = (suggestion: string) => {
-        if (!textareaRef.current || !currentPart) return;
-        
-        const text = inputValue;
-        let newText = "";
-        let newCursorPos = 0;
-
-        if (currentPart === 'prefix') {
-            // Reemplazar/Insertar prefijo
-            const firstSpace = text.indexOf(' ');
-            const rest = firstSpace === -1 ? "" : text.substring(firstSpace);
-            newText = `${suggestion} ${rest.trimStart()}`;
-            newCursorPos = suggestion.length + 1; // Cursor después del espacio
-        } 
-        else if (currentPart === 'location') {
-            // Reemplazar/Insertar locación
-            const firstSpace = text.indexOf(' ');
-            const prefix = text.substring(0, firstSpace + 1);
-            
-            const dashIndex = text.indexOf('-');
-            const suffix = dashIndex === -1 ? "" : text.substring(dashIndex); // " - DÍA"
-
-            // Construimos: PREFIJO + SUGERENCIA + SUFIJO
-            newText = `${prefix}${suggestion} ${suffix.trimStart()}`;
-            
-            // Si no había guion, lo sugerimos para el siguiente paso
-            if (dashIndex === -1) {
-                 newText = newText.trimEnd() + " - ";
-            }
-            newCursorPos = newText.length;
-        } 
-        else if (currentPart === 'time') {
-            // Reemplazar/Insertar tiempo
-            const lastDash = text.lastIndexOf('-');
-            const base = text.substring(0, lastDash + 1); // "INT. CASA -"
-            newText = `${base} ${suggestion}`;
-            newCursorPos = newText.length;
-        }
-
+    const applyNewValue = (newText: string, newCursorPos: number) => {
         setInputValue(newText);
         onChange(newText);
         setShowSuggestions(false);
         setActiveSuggestionIndex(0);
 
-        // Devolver el foco y mover cursor
         setTimeout(() => {
             if (textareaRef.current) {
                 textareaRef.current.focus();
                 textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+                updateSuggestions(textareaRef.current);
             }
         }, 0);
+    };
+
+    const handleLocationSelection = (locationText: string) => {
+        if (!textareaRef.current) return;
+
+        const { prefix } = parseHeading(inputValue);
+        const normalized = locationText.toUpperCase();
+
+        if (!locationNames.includes(normalized)) {
+            onAddLocation(normalized);
+        }
+
+        const newText = formatHeading(prefix, normalized, "");
+        applyNewValue(newText, newText.length);
+    };
+
+    const selectSuggestion = (suggestion: string) => {
+        if (!textareaRef.current || !currentPart) return;
+
+        const { prefix, location } = parseHeading(inputValue);
+
+        if (currentPart === 'prefix') {
+            const newText = `${suggestion}  - `;
+            applyNewValue(newText, suggestion.length + 1);
+        }
+        else if (currentPart === 'location') {
+            if (suggestion === ADD_LOCATION_LABEL) {
+                setShowSuggestions(false);
+                setActiveSuggestionIndex(0);
+                onOpenLocationsModal();
+                return;
+            }
+
+            const newText = formatHeading(prefix, suggestion, "");
+
+            if (!locationNames.includes(suggestion)) {
+                onAddLocation(suggestion);
+            }
+
+            applyNewValue(newText, newText.length);
+        }
+        else if (currentPart === 'time') {
+            const newText = formatHeading(prefix, location, suggestion);
+            applyNewValue(newText, newText.length);
+        }
     };
 
     const handleBlur = () => {
