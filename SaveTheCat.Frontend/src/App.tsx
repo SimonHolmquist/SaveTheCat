@@ -338,6 +338,19 @@ export default function App() {
                     onSkip={markTutorialAsSeen}
                 />
             </EntityProvider>
+
+            <footer className="app-footer">
+                <span>By Simon Holmquist©</span>
+                <span>simon.holmquist@gmail.com</span>
+                <a
+                    href="https://cafecito.app/savethecatboard"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="app-footer__link"
+                >
+                    Contribuir
+                </a>
+            </footer>
         </div>
     );
 }

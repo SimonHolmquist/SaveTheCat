@@ -1,5 +1,6 @@
 :root {
     --toolbar-height: 48px;
+    --footer-height: 60px;
     --beatsheet-width: calc(100vw / 6);
 }
 
@@ -27,8 +28,33 @@
 
 .app-content {
     display: flex;
-    flex-grow: 1; 
-    height: calc(100vh - var(--toolbar-height));
+    flex-grow: 1;
+    height: calc(100vh - var(--toolbar-height) - var(--footer-height));
+}
+
+.app-footer {
+    height: var(--footer-height);
+    background: #1c1c1c;
+    color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 0 24px;
+    box-sizing: border-box;
+    border-top: 1px solid #3a3a3a;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+.app-footer__link {
+    color: #8ab4ff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.app-footer__link:hover {
+    text-decoration: underline;
 }
 
 .toolbar__group {
