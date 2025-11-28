@@ -264,6 +264,7 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
                 onChange={(newValue) => handleInputChange(key, newValue)}
                 onInput={(e) => autoGrow(e.currentTarget as HTMLTextAreaElement)}
                 ariaLabel={label}
+                style={INPUT_STYLE}
               />
             ) : (
               <TextAreaWithSuggestions
