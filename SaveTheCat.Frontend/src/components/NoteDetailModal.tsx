@@ -82,12 +82,12 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
 
                 <div className="note-detail-modal__body">
                     
-                    <label className="detail-label">ENCABEZADO</label>
+                    <label className="detail-label">TÍTULO</label>
                     <SceneHeadingInput
                         value={note.sceneHeading}
                         onChange={handleSceneHeadingChange}
                         onInput={handleInput}
-                        placeholder="INT. CASA - DÍA"
+                        placeholder="(INT. o EXT) - LOCACIÓN - TIEMPO"
                         ariaLabel="Encabezado de escena"
                     />
 
@@ -120,7 +120,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate }: Pro
                                     value={note.emotionalDescription}
                                     onChange={(val) => handleTextAreaChange(val, "emotionalDescription")}
                                     onInput={handleInput}
-                                    placeholder="Descripción del cambio..."
+                                    placeholder="¿Qué cambio emocional ocurrió?"
                                     ariaLabel="Descripción emocional"
                                 />
                             </div>
