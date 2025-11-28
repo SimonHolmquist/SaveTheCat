@@ -135,7 +135,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                 </div>
 
                 <div style={{ background: 'rgba(255,255,255,0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)' }}>
-                    <label className="detail-label" style={{ display: 'block', marginBottom: '6px' }}>VINCULAR A HOJA DE TRAMA (DEFINE EL COLOR)</label>
+                    <label className="detail-label" style={{ display: 'block', marginBottom: '6px' }}>VINCULAR A HOJA DE TRAMA</label>
                     <select
                         value={note.beatItem || ""}
                         onChange={handleBeatChange}
@@ -152,23 +152,11 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                     >
                         <option value="">-- Sin Asignar (Nota Libre) --</option>
                         {BEAT_STRUCTURE.map(beat => (
-                            <option key={beat.key} value={beat.key}>
+                            <option key={beat.key} value={beat.key} style={{ backgroundColor: beat.color, color: '#000' }}>
                                 {beat.label}
                             </option>
                         ))}
-                    </select>
-                    {/* Pequeña previsualización del color seleccionado */}
-                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        Color asignado:
-                        <span style={{
-                            width: '16px',
-                            height: '16px',
-                            borderRadius: '50%',
-                            backgroundColor: note.color,
-                            border: '1px solid #ccc',
-                            display: 'inline-block'
-                        }}></span>
-                    </div>
+                    </select>    
                 </div>
 
                 <div className="modal__buttons">

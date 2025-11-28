@@ -29,6 +29,8 @@ const beatSheetFields: { label: string; key: keyof BeatSheetDto; description?: s
   { label: "15. Imagen de cierre (110):", key: "finalImage", description: "El espejo de la imagen de apertura. Muestra cuánto ha cambiado el héroe." },
 ];
 
+const INPUT_STYLE = { backgroundColor: 'rgba(255, 255, 255, 0.5)' };
+
 const InfoTooltip = ({ text, direction = 'up' }: { text: string; direction?: 'up' | 'down' }) => {
   const [visible, setVisible] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -228,7 +230,11 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
             key={key}
             className="beat-sheet__item"
             data-item-label={key === 'date' ? "fecha" : undefined}
-            style={{backgroundColor: fieldColor}}
+            style={{ 
+                backgroundColor: fieldColor,
+                padding: '8px',
+                borderRadius: '4px'
+            }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                 
@@ -267,6 +273,7 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
                 onChange={(newValue) => handleInputChange(key as keyof UpdateBeatSheetDto, newValue)}
                 onInput={(e) => autoGrow(e.currentTarget as HTMLTextAreaElement)}
                 ariaLabel={label}
+                style={INPUT_STYLE}
               />
             )}
           </div>
