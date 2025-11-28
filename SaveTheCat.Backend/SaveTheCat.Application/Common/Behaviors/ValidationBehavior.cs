@@ -4,15 +4,10 @@ using ValidationException = FluentValidation.ValidationException; // Usa el de F
 
 namespace SaveTheCat.Application.Common.Behaviors;
 
-public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
-
-    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
-    {
-        _validators = validators;
-    }
+    private readonly IEnumerable<IValidator<TRequest>> _validators = validators;
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
@@ -32,6 +27,6 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             if (failures.Count != 0)
                 throw new ValidationException(failures); // Esto detendrá la ejecución
         }
-        return await next(); // Pasa al siguiente_ handler
+        return await next(cancellationToken); // Pasa al siguiente_ handler
     }
 }

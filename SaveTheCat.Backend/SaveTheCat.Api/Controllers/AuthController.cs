@@ -21,23 +21,33 @@ public class AuthController(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     IOptions<JwtSettings> jwtOptions,
-    IMediator mediator) : BaseApiController // Hereda para CurrentUserId
+    IMediator mediator,
+    ILogger<AuthController> logger) : BaseApiController // Hereda para CurrentUserId
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
     private readonly JwtSettings _jwtSettings = jwtOptions.Value;
     private readonly IMediator _mediator = mediator; // <-- Inyecta MediatR
+    private readonly ILogger<AuthController> _logger = logger;
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
+        _logger.LogInformation("Register attempt for email {Email}", registerDto.Email);
+
         var command = new RegisterCommand(registerDto);
         var result = await _mediator.Send(command);
 
         if (!result.Succeeded)
         {
+            _logger.LogWarning("Register failed for email {Email}. Errors: {Errors}",
+                registerDto.Email,
+                string.Join("; ", result.Errors.Select(e => e.Description)));
+
             return BadRequest(result.Errors);
         }
+
+        _logger.LogInformation("Register succeeded for email {Email}", registerDto.Email);
 
         return Ok(new { Message = "Registro exitoso. Por favor, revisa tu email para verificar tu cuenta." });
     }
@@ -45,6 +55,8 @@ public class AuthController(
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto)
     {
+        _logger.LogInformation("Login attempt for {Identifier}", loginDto.EmailOrNickname);
+
         ApplicationUser? user;
 
         if (loginDto.EmailOrNickname.Contains('@'))
@@ -59,11 +71,13 @@ public class AuthController(
 
         if (user == null)
         {
+            _logger.LogWarning("Login failed. User not found for {Identifier}", loginDto.EmailOrNickname);
             return Unauthorized(new { Message = "Email, nickname o contraseña inválidos." });
         }
 
         if (!await _userManager.IsEmailConfirmedAsync(user))
         {
+            _logger.LogWarning("Login blocked. Email not confirmed for user {UserId}", user.Id);
             return Unauthorized(new { Message = "Debes verificar tu email antes de iniciar sesión." });
         }
 
@@ -71,12 +85,15 @@ public class AuthController(
 
         if (!result.Succeeded)
         {
+            _logger.LogWarning("Login failed. Invalid password for user {UserId}", user.Id);
             return Unauthorized(new { Message = "Email, nickname o contraseña inválidos." });
         }
 
         var nickname = GetUserNickname(user);
         var userDto = new UserDto(user.Id, user.Email!, nickname);
         var token = GenerateJwtToken(user);
+
+        _logger.LogInformation("Login succeeded for user {UserId}", user.Id);
 
         return Ok(new AuthResponseDto(token, userDto));
     }

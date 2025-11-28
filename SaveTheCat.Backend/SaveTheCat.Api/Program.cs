@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SaveTheCat.Api.Configuration;
+using SaveTheCat.Api.Middlewares;
 using SaveTheCat.Application.Common.Behaviors;
 using SaveTheCat.Domain.Entities;
 using SaveTheCat.Infrastructure;
@@ -15,9 +16,23 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Logging básico
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// Nivel mínimo y filtros
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+
+// Application Insights opcional (muy recomendable)
+builder.Services.AddApplicationInsightsTelemetry();
+
 var appAssembly = typeof(SaveTheCat.Application.Common.Mappings.MappingProfile).Assembly;
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(appAssembly));
 builder.Services.AddValidatorsFromAssembly(appAssembly);
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddAutoMapper(cfg => { }, appAssembly);
 
@@ -117,6 +132,15 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
+app.MapGet("/health", (ILoggerFactory loggerFactory) =>
+{
+    var logger = loggerFactory.CreateLogger("HealthEndpoint");
+    logger.LogInformation("Health check called at {Time}", DateTime.UtcNow);
+    return Results.Ok(new { status = "ok" });
+});
 
 using (var scope = app.Services.CreateScope())
 {
