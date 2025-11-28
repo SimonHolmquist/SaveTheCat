@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import UserMenu from "./UserMenu";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   onCharactersClick: () => void;
@@ -7,18 +8,21 @@ type Props = {
   onProjectsClick: () => void;
 };
 
+
 const Toolbar = forwardRef<HTMLDivElement, Props>(({
   onCharactersClick,
   onLocationsClick,
   onProjectsClick,
 }, ref) => {
+  const { t } = useTranslation()
+  
   return (
     <div className="app-toolbar" ref={ref}>
       <div className="toolbar__group">
         <button
           type="button"
           className="toolbar__btn"
-          title="Gestionar Proyectos"
+          title={t('toolbar.projects')}
           onClick={onProjectsClick}
         >
           📝
@@ -26,7 +30,7 @@ const Toolbar = forwardRef<HTMLDivElement, Props>(({
         <button
           type="button"
           className="toolbar__btn"
-          title="Personajes"
+          title={t('toolbar.characters')}
           onClick={onCharactersClick}
         >
           👤
@@ -34,7 +38,7 @@ const Toolbar = forwardRef<HTMLDivElement, Props>(({
         <button
           type="button"
           className="toolbar__btn"
-          title="Locaciones"
+          title={t('toolbar.locations')}
           onClick={onLocationsClick}
         >
           🏠

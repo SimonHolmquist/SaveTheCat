@@ -14,12 +14,13 @@ type Props = {
     onAddLocation: (name: string) => void;
 };
 
+
 const CHARGES: EmotionalCharge[] = ["+/-", "-/+", "+/+", "-/-"];
 
 export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpenLocationsModal, onAddLocation }: Props) {
     if (!isOpen || !note) return null;
     const { t } = useTranslation()
-
+    
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
             onClose();
@@ -66,13 +67,13 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
         <div className="modal__overlay" onClick={handleOverlayClick}>
             <div className="modal__content note-detail-modal" style={{ backgroundColor: note.color }}>
                 <div className="note-detail-modal__header">
-                    <h3>Detalles de la Escena</h3>
+                    <h3>{t('noteDetail.title')}</h3>
                     <button onClick={onClose} className="modal__close-btn">✕</button>
                 </div>
 
                 <div className="note-detail-modal__body">
 
-                    <label className="detail-label">TÍTULO</label>
+                    <label className="detail-label">{t('noteDetail.heading')}</label>
                     <SceneHeadingInput
                         value={note.sceneHeading}
                         onChange={handleSceneHeadingChange}
@@ -90,13 +91,13 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                         value={note.description}
                         onChange={(val) => handleTextAreaChange(val, "description")}
                         onInput={handleInput}
-                        placeholder="¿Qué sucede en la escena?"
-                        ariaLabel="Descripción"
+                        placeholder={t('noteDetail.placeholders.description')}
+                        ariaLabel={t('noteDetail.description')}
                     />
 
                     <div className="note__field-group">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                            <label className="detail-label">CAMBIO EMOCIONAL</label>
+                            <label className="detail-label">{t('noteDetail.emotionalChange')}</label>
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <button
                                     type="button"
@@ -112,14 +113,14 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                                     value={note.emotionalDescription}
                                     onChange={(val) => handleTextAreaChange(val, "emotionalDescription")}
                                     onInput={handleInput}
-                                    placeholder="¿Qué cambio emocional ocurrió?"
+                                    placeholder={t('noteDetail.placeholders.emotional')}
                                     ariaLabel="Descripción emocional"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <label className="detail-label">CONFLICTO</label>
+                    <label className="detail-label">{t('noteDetail.conflict')}</label>
                     <div className="note__field-group">
                         <span className="note__conflict-label">&gt;&lt;</span>
                         <TextAreaWithSuggestions
@@ -128,14 +129,14 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                             value={note.conflict}
                             onChange={(val) => handleTextAreaChange(val, "conflict")}
                             onInput={handleInput}
-                            placeholder="¿Cuál es el conflicto?"
+                            placeholder={t('noteDetail.placeholders.conflict')}
                             ariaLabel="Conflicto"
                         />
                     </div>
                 </div>
 
                 <div style={{ background: 'rgba(255,255,255,0.6)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)' }}>
-                    <label className="detail-label" style={{ display: 'block', marginBottom: '6px' }}>VINCULAR A HOJA DE TRAMA</label>
+                    <label className="detail-label" style={{ display: 'block', marginBottom: '6px' }}>{t('noteDetail.beatLink')}</label>
                     <select
                         value={note.beatItem || ""}
                         onChange={handleBeatChange}
@@ -160,7 +161,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                 </div>
 
                 <div className="modal__buttons">
-                    <button className="modal__btn" onClick={onClose}>Cerrar</button>
+                    <button className="modal__btn" onClick={onClose}>{t("common.close")}</button>
                 </div>
 
             </div>

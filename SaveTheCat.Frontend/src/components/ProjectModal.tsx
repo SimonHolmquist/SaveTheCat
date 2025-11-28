@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import type { Project } from "../hooks/useProjects"; // Importa el tipo Project
+import type { Project } from "../hooks/useProjects";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import { useTranslation } from "react-i18next";
 
 type Props = {
     isOpen: boolean;
@@ -10,7 +11,7 @@ type Props = {
     onAdd: (name: string) => void;
     onUpdate: (id: string, newName: string) => void;
     onDelete: (id: string) => void;
-    onSelect: (id: string) => void; // Función para cambiar de proyecto
+    onSelect: (id: string) => void;
 };
 
 export default function ProjectModal({
@@ -23,6 +24,7 @@ export default function ProjectModal({
     onDelete,
     onSelect,
 }: Props) {
+    const { t } = useTranslation()
     const [newName, setNewName] = useState("");
     const [editing, setEditing] = useState<{ id: string; name: string } | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -64,7 +66,7 @@ export default function ProjectModal({
     const handleRequestDelete = (id: string) => {
         // No permitir eliminar el único proyecto que queda
         if (projects.length <= 1) {
-            alert("No puedes eliminar el único proyecto. Crea uno nuevo antes de eliminar este.");
+            alert(t('modals.cannotDeleteLastProject'));
             return;
         }
         setDeletingId(id);
@@ -100,7 +102,7 @@ export default function ProjectModal({
     return (
         <div className="modal__overlay" onClick={handleClose}>
             <div className="modal__content entity-modal" onClick={handleModalClick}>
-                <h2>Gestionar Proyectos</h2>
+                <h2>{t('modals.manageProjects')}</h2>
 
                 <div className="entity-modal__form">
                     <input
@@ -108,9 +110,9 @@ export default function ProjectModal({
                         value={newName}
                         onChange={(e) => setNewName(e.target.value.toUpperCase())}
                         onKeyDown={handleAddKeyDown}
-                        placeholder="Nuevo proyecto..."
+                        placeholder={t('modals.newProjectPlaceholder')}
                     />
-                    <button type="button" onClick={handleAdd}>Añadir</button>
+                    <button type="button" onClick={handleAdd}>{t('common.add')}</button>
                 </div>
 
                 <ul className="entity-modal__list">
@@ -127,8 +129,8 @@ export default function ProjectModal({
                                         onKeyDown={handleEditKeyDown}
                                         autoFocus
                                     />
-                                    <button onClick={handleUpdate}>Guardar</button>
-                                    <button onClick={handleCancelEdit}>Cancelar</button>
+                                    <button onClick={handleUpdate}>{t('common.save')}</button>
+                                    <button onClick={handleCancelEdit}>{t('common.cancel')}</button>
                                 </div>
                             ) : (
                                 <div className="entity-modal__view">
@@ -138,18 +140,18 @@ export default function ProjectModal({
                                         onClick={() => onSelect(project.id)}
                                     >
                                         {project.name}
-                                        {project.id === activeProjectId && " (Activo)"}
+                                        {project.id === activeProjectId && t('modals.activeSuffix')}
                                     </span>
                                     <div>
                                         {project.id !== activeProjectId && (
                                             <button onClick={() => onSelect(project.id)}>
-                                                Seleccionar
+                                                {t('common.select')}
                                             </button>
                                         )}
-                                        <button onClick={() => handleStartEdit(project)}>Editar</button>
+                                        <button onClick={() => handleStartEdit(project)}>{t('common.edit')}</button>
                                         {projects.length > 1 && (
                                             <button onClick={() => handleRequestDelete(project.id)}>
-                                                Eliminar
+                                                {t('common.delete')}
                                             </button>
                                         )}
                                     </div>
@@ -170,7 +172,7 @@ export default function ProjectModal({
                 isOpen={deletingId !== null}
                 onCancel={handleCancelDelete}
                 onConfirm={handleConfirmDelete}
-                message={`¿Estás seguro de que quieres eliminar "${getProjectName(deletingId || "")}"? Esta acción no se puede deshacer.`}
+                message={t('modals.confirmDeleteEntity', getProjectName(deletingId || ""))}
             />
         </div>
     );

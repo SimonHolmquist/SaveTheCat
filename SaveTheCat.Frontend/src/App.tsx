@@ -15,6 +15,7 @@ import ProjectModal from "./components/ProjectModal";
 import NoteDetailModal from "./components/NoteDetailModal";
 import TutorialOverlay, { type TutorialStep } from "./components/TutorialOverlay";
 import { useAuth } from "./context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function App() {
     const {
@@ -78,11 +79,12 @@ export default function App() {
     const [isTutorialOpen, setIsTutorialOpen] = useState(false);
     const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
     const { currentUser } = useAuth();
+    const { t } = useTranslation();
 
     const tutorialSteps = useMemo<TutorialStep[]>(() => [
         {
-            title: "Barra superior",
-            description: "Gestiona proyectos, personajes y locaciones desde estos accesos directos. El menú de usuario te permite salir o cambiar tu contraseña.",
+            title: t('tutorial.steps.toolbar'),
+            description: t('tutorial.steps.toolbarDesc'),
             targetRef: toolbarRef,
         },
         {
@@ -107,7 +109,7 @@ export default function App() {
 
         if (!initializationRef.current && projects.length === 0 && !activeProjectId) {
             initializationRef.current = true;
-            addProject("MI PRIMER PROYECTO");
+            addProject(t('initialProjectName'));
         }
     }, [projects, activeProjectId, addProject, isLoadingProjects]);
 
@@ -240,7 +242,7 @@ export default function App() {
     }, []);
 
     if (isLoadingProjects || !activeProjectId) {
-        return <div className="app-container">Cargando...</div>;
+        return <div className="app-container">{t('common.loading')}</div>;
     }
 
     return (
@@ -346,7 +348,7 @@ export default function App() {
                     rel="noreferrer"
                     className="app-footer__link"
                 >
-                    By Simon Holmquist©
+                    {t('footer.by')}
                 </a>
                 <a
                     href="mailto:simon.holmquist@gmail.com"
@@ -360,7 +362,7 @@ export default function App() {
                     rel="noreferrer"
                     className="app-footer__link"
                 >
-                    Contribuir
+                    {t('footer.contribute')}
                 </a>
             </footer>
         </div>

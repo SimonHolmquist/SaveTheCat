@@ -5,6 +5,12 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   es: {
     translation: {
+      common: {
+        add: "Añadir",
+        edit: "Editar",
+        close: "Cerrar",
+        delete: "Eliminar"
+      },
       toolbar: {
         projects: "Gestionar Proyectos",
         characters: "Personajes",
@@ -69,9 +75,10 @@ const resources = {
         newScene: "NUEVA ESCENA"
       },
       modals: {
-        projects: "Gestionar Proyectos",
-        characters: "Gestionar Personajes",
-        locations: "Gestionar Locaciones",
+        manageProjects: "Gestionar Proyectos",
+        newProjectPlaceholder: "Nombre del nuevo proyecto",
+        manageCharacters: "Gestionar Personajes",
+        manageLocations: "Gestionar Locaciones",
         add: "Añadir",
         save: "Guardar",
         cancel: "Cancelar",
@@ -80,7 +87,8 @@ const resources = {
         edit: "Editar",
         select: "Seleccionar",
         confirmDeleteTitle: "¿Estás seguro?",
-        confirmDeleteMsg: "¿Estás seguro de que quieres eliminar \"{{name}}\"?"
+        confirmDeleteMsg: "¿Estás seguro de que quieres eliminar \"{{name}}\"?",
+        activeSuffix: " (Activo)"
       },
       noteDetail: {
         title: "Detalles de la Escena",
@@ -121,6 +129,12 @@ const resources = {
   },
   en: {
     translation: {
+      common: {
+        add: "Add",
+        edit: "Edit",
+        close: "Close",
+        delete: "Delete"
+      },
       toolbar: {
         projects: "Manage Projects",
         characters: "Characters",
@@ -185,9 +199,10 @@ const resources = {
         newScene: "NEW SCENE"
       },
       modals: {
-        projects: "Manage Projects",
-        characters: "Manage Characters",
-        locations: "Manage Locations",
+        manageProjects: "Manage Projects",
+        newProjectPlaceholder: "New project name",
+        manageCharacters: "Manage Characters",
+        manageLocations: "Manage Locations",
         add: "Add",
         save: "Save",
         cancel: "Cancel",
@@ -196,7 +211,8 @@ const resources = {
         edit: "Edit",
         select: "Select",
         confirmDeleteTitle: "Are you sure?",
-        confirmDeleteMsg: "Are you sure you want to delete \"{{name}}\"?"
+        confirmDeleteMsg: "Are you sure you want to delete \"{{name}}\"?",
+        activeSuffix: " (Active)"
       },
       noteDetail: {
         title: "Scene Details",

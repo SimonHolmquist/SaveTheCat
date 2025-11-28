@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
     isOpen: boolean;
@@ -12,6 +13,8 @@ export default function ConfirmDeleteModal({ isOpen, onConfirm, onCancel, messag
         return null;
     }
 
+    const { t } = useTranslation();
+
     const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
     };
@@ -19,21 +22,21 @@ export default function ConfirmDeleteModal({ isOpen, onConfirm, onCancel, messag
     return (
         <div className="modal__overlay" onClick={onCancel}>
             <div className="modal__content" onClick={handleModalClick}>
-                <p>{message || "¿Estás seguro de que quieres eliminar esta nota?"}</p>
+                <p>{message || t('modals.confirmDeleteNoteDefault')}</p>
                 <div className="modal__buttons">
                     <button
                         type="button"
                         className="modal__btn modal__btn--cancel"
                         onClick={onCancel}
                     >
-                        Cancelar
+                        {t('common.cancel')}
                     </button>
                     <button
                         type="button"
                         className="modal__btn modal__btn--confirm"
                         onClick={onConfirm}
                     >
-                        Eliminar
+                        {t('common.delete')}
                     </button>
                 </div>
             </div>

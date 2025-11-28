@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties, type RefObject } from "react";
+import { useTranslation } from "react-i18next";
 
 export type TutorialStep = {
   title: string;
@@ -124,9 +125,10 @@ export default function TutorialOverlay({
   if (!isOpen || !steps.length || !activeStep) return null;
 
   const isLastStep = currentStep >= steps.length - 1;
+  const { t } = useTranslation();
 
   return (
-    <div className="tutorial-overlay" role="dialog" aria-modal="true" aria-label="Tutorial de bienvenida">
+    <div className="tutorial-overlay" role="dialog" aria-modal="true" aria-label={t('tutorial.ariaLabel')}>
       <div className="tutorial-backdrop" />
       <div
         className="tutorial-spotlight"
@@ -137,22 +139,22 @@ export default function TutorialOverlay({
       <div className="tutorial-card" style={computeCardPosition(spotlight ?? null)}>
         <div className="tutorial-card__header">
           <div>
-            <p className="tutorial-card__eyebrow">Paso {currentStep + 1} de {steps.length}</p>
+            <p className="tutorial-card__eyebrow">{t('tutorial.stepCounter', { current: currentStep + 1, total: steps.length })}</p>
             <h3 className="tutorial-card__title">{activeStep.title}</h3>
           </div>
           <button type="button" className="tutorial-card__skip" onClick={onSkip}>
-            Omitir
+            {t('tutorial.skip')}
           </button>
         </div>
         <p className="tutorial-card__description">{activeStep.description}</p>
 
         <div className="tutorial-card__actions">
           <button type="button" onClick={onPrev} disabled={currentStep === 0}>
-            Anterior
+            {t('tutorial.prev')}
           </button>
           <div className="tutorial-card__actions--spacer" />
           <button type="button" className="tutorial-card__primary" onClick={onNext}>
-            {isLastStep ? "¡Entendido!" : "Siguiente"}
+            {isLastStep ? t('tutorial.done') : t('tutorial.next')}
           </button>
         </div>
       </div>

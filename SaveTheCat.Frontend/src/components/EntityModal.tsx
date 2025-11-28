@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { Entity } from "../types/entities";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import { useTranslation } from "react-i18next";
 
 type Props = {
     isOpen: boolean;
@@ -23,6 +24,7 @@ export default function EntityModal({
     onUpdate,
     onDelete,
 }: Props) {
+    const { t } = useTranslation();
     const [newName, setNewName] = useState("");
     const [editing, setEditing] = useState<{ id: string; name: string } | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -80,14 +82,14 @@ export default function EntityModal({
 
     const handleAddKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Evita cualquier comportamiento por defecto
+            e.preventDefault();
             handleAdd();
         }
     };
 
     const handleEditKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Evita cualquier comportamiento por defecto
+            e.preventDefault();
             handleUpdate();
         }
     };
@@ -105,7 +107,7 @@ export default function EntityModal({
                         onKeyDown={handleAddKeyDown}
                         placeholder={placeholderName}
                     />
-                    <button type="button" onClick={handleAdd}>Añadir</button>
+                    <button type="button" onClick={handleAdd}>{t('common.add')}</button>
                 </div>
 
                 <ul className="entity-modal__list">
@@ -120,15 +122,15 @@ export default function EntityModal({
                                         onKeyDown={handleEditKeyDown}
                                         autoFocus
                                     />
-                                    <button onClick={handleUpdate}>Guardar</button>
-                                    <button onClick={handleCancelEdit}>Cancelar</button>
+                                    <button onClick={handleUpdate}>{t('common.save')}</button>
+                                    <button onClick={handleCancelEdit}>{t('common.cancel')}</button>
                                 </div>
                             ) : (
                                 <div className="entity-modal__view">
                                     <span>{entity.name}</span>
                                     <div>
-                                        <button onClick={() => handleStartEdit(entity)}>Editar</button>
-                                        <button onClick={() => handleRequestDelete(entity.id)}>Eliminar</button>
+                                        <button onClick={() => handleStartEdit(entity)}>{t('common.edit')}</button>
+                                        <button onClick={() => handleRequestDelete(entity.id)}>{t('common.delete')}</button>
                                     </div>
                                 </div>
                             )}
@@ -138,7 +140,7 @@ export default function EntityModal({
 
                 <div className="modal__buttons">
                     <button type="button" className="modal__btn" onClick={handleClose}>
-                        Cerrar
+                        {t('common.close')}
                     </button>
                 </div>
             </div>
@@ -147,7 +149,7 @@ export default function EntityModal({
                 isOpen={deletingId !== null}
                 onCancel={handleCancelDelete}
                 onConfirm={handleConfirmDelete}
-                message={`¿Estás seguro de que quieres eliminar "${getEntityName(deletingId || "")}"?`}
+                message={t('modals.confirmDeleteEntity', getEntityName(deletingId || ""))}
             />
         </div>
     );

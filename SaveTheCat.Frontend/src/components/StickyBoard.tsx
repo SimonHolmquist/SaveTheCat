@@ -44,7 +44,7 @@ const StickyBoard = forwardRef<HTMLDivElement, Props>(({
         >
             <img
                 src="/Fondo.jpg"
-                alt="Fondo"
+                alt={t('board.backgroundAlt')}
                 className="board__bg"
                 aria-hidden
             />

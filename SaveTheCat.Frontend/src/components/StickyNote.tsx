@@ -57,7 +57,7 @@ export default function StickyNote({
                 type="button"
                 onClick={handleDeleteClick}
                 className="note__close-pin"
-                title="Eliminar nota"
+                title={t('note.deleteTooltip')}
             >
                 ✕
             </button>
@@ -66,10 +66,9 @@ export default function StickyNote({
                 <span className="note__preview-title">
                     {note.sceneHeading || t("board.newScene")}
                 </span>
-                {/* Indicadores visuales pequeños si tiene contenido */}
                 <div className="note__indicators">
-                    {note.description && <span title="Tiene descripción">📝</span>}
-                    {note.conflict && <span title="Tiene conflicto">⚔️</span>}
+                    {note.description && <span title={t('note.hasDescription')}>📝</span>}
+                    {note.conflict && <span title={t('note.hasConflict')}>⚔️</span>}
                 </div>
             </div>
         </div>

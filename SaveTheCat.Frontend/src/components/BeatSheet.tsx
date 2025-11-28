@@ -216,11 +216,11 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
   }, [beatSheet]);
 
   if (isLoading) {
-    return <div className="beat-sheet">Cargando...</div>;
+    return <div className="beat-sheet">t('common.loading')</div>;
   }
 
   if (!beatSheet) {
-    return <div className="beat-sheet">Error al cargar la hoja de trama.</div>;
+    return <div className="beat-sheet">t('beatSheet.errorLoading')</div>;
   }
 
   return (
@@ -236,7 +236,7 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
           description = t(`beatSheet.desc_${key}`);
         } else {
           label = t(`beatSheet.beats.${key}` as any); // Type cast si TS se queja
-          description = t(`beatSheet.beatDescriptions.${key}` as any);
+          description = t(`beatSheet.beatDescriptions.${key}`);
         }
 
         const isReadOnly = (key === 'title' || key === 'date');
@@ -259,7 +259,7 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
               {/* Icono primero */}
               {beatSheetFields.find(f => f.key === key)?.description && (
                 <InfoTooltip
-                  text={beatSheetFields.find(f => f.key === key)!.description!}
+                  text={t(`beatSheet.beatDescriptions.${beatSheetFields.find(f => f.key === key)?.key}`)}
                   direction={tooltipDirection}
                 />
               )}
