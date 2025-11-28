@@ -340,8 +340,20 @@ export default function App() {
             </EntityProvider>
 
             <footer className="app-footer">
-                <span>By Simon Holmquist©</span>
-                <span>simon.holmquist@gmail.com</span>
+                <a
+                    href="https://github.com/SimonHolmquist"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="app-footer__link"
+                >
+                    By Simon Holmquist©
+                </a>
+                <a
+                    href="mailto:simon.holmquist@gmail.com"
+                    className="app-footer__link"
+                >
+                    simon.holmquist@gmail.com
+                </a>
                 <a
                     href="https://cafecito.app/savethecatboard"
                     target="_blank"
