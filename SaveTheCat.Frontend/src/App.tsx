@@ -33,11 +33,10 @@ export default function App() {
         addNoteAt,
         updateNote,
         updateNotePosition,
-        updateNoteColor,
         removeNote,
         NOTE_W_PERCENT,
         MAX_NOTES
-    } = useStickyNotes(activeId); 
+    } = useStickyNotes(activeId);
 
     const {
         entities: characters,
@@ -162,13 +161,6 @@ export default function App() {
         setSelectedNoteId(id);
     }, []);
 
-    const handleColorChange = useCallback((color: string) => {
-        const targetId = editingNoteId || selectedNoteId;
-        if (targetId) {
-            updateNoteColor(targetId, color);
-        }
-    }, [editingNoteId, selectedNoteId, updateNoteColor]);
-
     const handleRequestDelete = useCallback((id: string) => {
         setNoteToDelete(id);
     }, []);
@@ -196,9 +188,7 @@ export default function App() {
     return (
         <div className="app-container">
             <Toolbar
-                selectedNoteId={selectedNoteId || editingNoteId}
-                onColorChange={handleColorChange}
-                onProjectsClick={() => setActiveModal("projects")} 
+                onProjectsClick={() => setActiveModal("projects")}
                 onCharactersClick={() => setActiveModal("characters")}
                 onLocationsClick={() => setActiveModal("locations")}
             />
