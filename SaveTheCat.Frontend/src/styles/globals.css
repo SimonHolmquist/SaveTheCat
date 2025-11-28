@@ -34,26 +34,28 @@
 
 .app-footer {
     height: var(--footer-height);
-    background: #1c1c1c;
-    color: #f0f0f0;
+    background: #f0f0f0;
+    color: #333;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 24px;
     padding: 0 24px;
     box-sizing: border-box;
-    border-top: 1px solid #3a3a3a;
+    border-top: 1px solid #ccc;
     font-size: 14px;
     letter-spacing: 0.3px;
 }
 
 .app-footer__link {
-    color: #8ab4ff;
+    color: #333;
     text-decoration: none;
     font-weight: 600;
+    transition: color 0.2s;
 }
 
 .app-footer__link:hover {
+    color: #646cff;
     text-decoration: underline;
 }
 
