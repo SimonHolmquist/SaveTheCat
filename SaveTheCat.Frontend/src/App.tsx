@@ -222,6 +222,8 @@ export default function App() {
                     onClose={() => setEditingNoteId(null)}
                     note={noteBeingEdited}
                     onUpdate={updateNote}
+                    onOpenLocationsModal={() => setActiveModal("locations")}
+                    onAddLocation={addLocation}
                 />
 
                 <ConfirmDeleteModal
