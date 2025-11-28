@@ -6,7 +6,7 @@ import {
   Navigate,
   Outlet,
 } from "react-router-dom";
-
+import "./i18n";
 import App from "./App.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";

@@ -1,6 +1,7 @@
 import React, { forwardRef } from "react";
 import StickyNote from "./StickyNote";
 import type { Note } from "../types/note";
+import { useTranslation } from "react-i18next";
 
 type Props = {
     notes: readonly Note[];
@@ -30,6 +31,8 @@ const StickyBoard = forwardRef<HTMLDivElement, Props>(({
     onRemoveNote,
     onEditNote,
 }, ref) => {
+    const { t } = useTranslation();
+
     return (
         <div
             ref={ref}
@@ -49,17 +52,17 @@ const StickyBoard = forwardRef<HTMLDivElement, Props>(({
             <div className="board__divider board__divider--1" aria-hidden />
             <div className="board__divider board__divider--2" aria-hidden />
             <div className="board__divider board__divider--3" aria-hidden />
-            <div className="board__act-label board__act-label--1" aria-hidden>
-                ACTO I<br />(pp. 1-25)
+            <div className="board__act-label board__act-label--1" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
+                {t('board.act1')}
             </div>
-            <div className="board__act-label board__act-label--2" aria-hidden>
-                ACTO II<br />(pp. 25-55)
+            <div className="board__act-label board__act-label--2a" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
+                {t('board.act2a')}
             </div>
-            <div className="board__act-label board__act-label--3" aria-hidden>
-                ACTO II<br />(pp. 55-85)
+            <div className="board__act-label board__act-label--2b" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
+                {t('board.act2b')}
             </div>
-            <div className="board__act-label board__act-label--4" aria-hidden>
-                ACTO III<br />(pp. 85-110)
+            <div className="board__act-label board__act-label--3" aria-hidden style={{ whiteSpace: 'pre-wrap' }}>
+                {t('board.act3')}
             </div>
 
             <div className="note-counter">

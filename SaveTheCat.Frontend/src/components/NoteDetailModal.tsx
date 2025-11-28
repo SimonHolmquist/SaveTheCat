@@ -1,10 +1,9 @@
-// [file-path]: simonholmquist/savethecat/SaveTheCat-870e49267253fe7ea3a3d49bc18d5da1b2e9e0ac/SaveTheCat.Frontend/src/components/NoteDetailModal.tsx
-
 import React from "react";
 import type { Note, EmotionalCharge } from "../types/note";
 import SceneHeadingInput from "./SceneHeadingInput";
 import TextAreaWithSuggestions from "./TextAreaWithSuggestions";
 import { getColorForBeat, BEAT_STRUCTURE } from "../utils/beatColors";
+import { useTranslation } from "react-i18next";
 
 type Props = {
     isOpen: boolean;

@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ConfirmDeleteModal from "./ConfirmDeleteModal"; // Reutilizamos tu modal
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import apiClient from "../api/apiClient";
+import { useTranslation } from "react-i18next"; // 1. Importar hook
 
 export default function UserMenu() {
   const { currentUser, logout } = useAuth();
+  const { t, i18n } = useTranslation(); // 2. Usar hook
   const [isOpen, setIsOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Cierra el menú si se hace clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -35,23 +36,23 @@ export default function UserMenu() {
 
   const handleConfirmDelete = async () => {
     try {
-      // 3. Llamar a la API
       await apiClient.delete('/auth/delete-account');
-
       setShowDeleteModal(false);
-      alert("Cuenta eliminada exitosamente.");
-      logout(); // Cierra sesión después de eliminar
-
+      alert(t('toolbar.userMenu.accountDeleted'));
+      logout();
     } catch (error) {
-      console.error("Error al eliminar la cuenta:", error);
+      console.error("Error deleting account:", error);
       setShowDeleteModal(false);
-      alert("Error al eliminar la cuenta. Por favor, inténtalo de nuevo.");
     }
   };
 
-  if (!currentUser) {
-    return null; // No mostrar nada si no hay usuario (aunque esto no debería pasar en una ruta protegida)
-  }
+  // 3. Función para cambiar idioma
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith('es') ? 'en' : 'es';
+    i18n.changeLanguage(newLang);
+  };
+
+  if (!currentUser) return null;
 
   return (
     <div className="user-menu-container" ref={menuRef}>
@@ -67,13 +68,29 @@ export default function UserMenu() {
 
       {isOpen && (
         <div className="user-menu-dropdown" role="menu">
+          {/* 4. Botón de Idioma ES/EN */}
+          <button
+            type="button"
+            className="user-menu-item"
+            onClick={toggleLanguage}
+            role="menuitem"
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
+            <span>Idioma / Language</span>
+            <span>
+              <span style={{ fontWeight: i18n.language.startsWith('es') ? 'bold' : 'normal' }}>ES</span>
+              {' / '}
+              <span style={{ fontWeight: i18n.language.startsWith('en') ? 'bold' : 'normal' }}>EN</span>
+            </span>
+          </button>
+
           <Link
             to="/account/change-password"
             className="user-menu-item"
             role="menuitem"
             onClick={() => setIsOpen(false)}
           >
-            Cambiar Contraseña
+            {t('toolbar.userMenu.changePassword')}
           </Link>
           <button
             type="button"
@@ -81,7 +98,7 @@ export default function UserMenu() {
             role="menuitem"
             onClick={handleLogout}
           >
-            Cerrar Sesión
+            {t('toolbar.userMenu.logout')}
           </button>
           <button
             type="button"
@@ -89,7 +106,7 @@ export default function UserMenu() {
             role="menuitem"
             onClick={handleDeleteRequest}
           >
-            Eliminar Cuenta
+            {t('toolbar.userMenu.deleteAccount')}
           </button>
         </div>
       )}
@@ -98,7 +115,7 @@ export default function UserMenu() {
         isOpen={showDeleteModal}
         onCancel={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
-        message="¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer."
+        message={t('toolbar.userMenu.confirmDelete')}
       />
     </div>
   );
