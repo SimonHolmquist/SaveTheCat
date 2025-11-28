@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import GenreInput from "./GenreInput";
 import TextAreaWithSuggestions from "./TextAreaWithSuggestions";
 import apiClient from "../api/apiClient"; 
@@ -134,11 +134,13 @@ type Props = {
   projectName: string | undefined;
 };
 
-export default function BeatSheet({ projectId }: Props) {
+const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) => {
   const [beatSheet, setBeatSheet] = useState<BeatSheetDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const sheetRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<number | null>(null);
+
+  useImperativeHandle(ref, () => sheetRef.current!, []);
 
   useEffect(() => {
     if (!projectId) return;
@@ -267,4 +269,8 @@ export default function BeatSheet({ projectId }: Props) {
       })}
     </div>
   );
-}
+});
+
+BeatSheet.displayName = "BeatSheet";
+
+export default BeatSheet;

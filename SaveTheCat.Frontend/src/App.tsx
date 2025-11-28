@@ -13,6 +13,8 @@ import { EntityProvider } from "./context/EntityContext";
 import { useProjects } from "./hooks/useProjects";
 import ProjectModal from "./components/ProjectModal";
 import NoteDetailModal from "./components/NoteDetailModal";
+import TutorialOverlay, { type TutorialStep } from "./components/TutorialOverlay";
+import { useAuth } from "./context/AuthContext";
 
 export default function App() {
     const {
@@ -53,6 +55,8 @@ export default function App() {
     } = useEntities<Location>(activeId, 'locations'); 
 
     const boardRef = useRef<HTMLDivElement>(null);
+    const toolbarRef = useRef<HTMLDivElement>(null);
+    const beatSheetRef = useRef<HTMLDivElement>(null);
     
     // Referencias para solucionar los bugs
     const initializationRef = useRef(false); // Evita doble creación de proyecto
@@ -68,8 +72,34 @@ export default function App() {
     const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
     
     const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
-    type ModalType = "characters" | "locations" | "projects" | null; 
+    type ModalType = "characters" | "locations" | "projects" | null;
     const [activeModal, setActiveModal] = useState<ModalType>(null);
+    const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+    const [tutorialStepIndex, setTutorialStepIndex] = useState(0);
+    const { currentUser } = useAuth();
+
+    const tutorialSteps = useMemo<TutorialStep[]>(() => [
+        {
+            title: "Barra superior",
+            description: "Gestiona proyectos, personajes y locaciones desde estos accesos directos. El menú de usuario te permite salir o cambiar tu contraseña.",
+            targetRef: toolbarRef,
+        },
+        {
+            title: "Hoja de beats",
+            description: "Describe tu historia paso a paso. Cada campo tiene sugerencias y se guarda automáticamente al escribir.",
+            targetRef: beatSheetRef,
+        },
+        {
+            title: "Tablero de tarjetas",
+            description: "Haz clic en el fondo para crear una tarjeta, arrástrala para ordenar las escenas y haz doble clic para editarla con más detalle.",
+            targetRef: boardRef,
+        },
+        {
+            title: "Personajes y locaciones",
+            description: "Abre los paneles desde la barra superior y vincula personajes o lugares a tus notas desde el editor de detalles.",
+            targetRef: boardRef,
+        },
+    ], []);
 
     // --- BUG FIX 1: Creación de proyecto único ---
     useEffect(() => {
@@ -87,6 +117,16 @@ export default function App() {
         setEditingNoteId(null);
         setDraggingNote(null);
     }, [activeProjectId]);
+
+    useEffect(() => {
+        if (!currentUser || isLoadingProjects) return;
+        const storageKey = `tutorialSeen-${currentUser.id}`;
+        const hasSeenTutorial = localStorage.getItem(storageKey);
+        if (!hasSeenTutorial) {
+            setTutorialStepIndex(0);
+            setIsTutorialOpen(true);
+        }
+    }, [currentUser, isLoadingProjects]);
 
     // --- Handlers ---
 
@@ -177,9 +217,28 @@ export default function App() {
         setNoteToDelete(null);
     }, [noteToDelete, removeNote, editingNoteId]);
 
-    const noteBeingEdited = useMemo(() => 
+    const noteBeingEdited = useMemo(() =>
         notes.find(n => n.id === editingNoteId) || null
     , [notes, editingNoteId]);
+
+    const markTutorialAsSeen = useCallback(() => {
+        if (currentUser) {
+            localStorage.setItem(`tutorialSeen-${currentUser.id}`, "true");
+        }
+        setIsTutorialOpen(false);
+    }, [currentUser]);
+
+    const handleNextStep = useCallback(() => {
+        if (tutorialStepIndex >= tutorialSteps.length - 1) {
+            markTutorialAsSeen();
+            return;
+        }
+        setTutorialStepIndex((prev) => Math.min(prev + 1, tutorialSteps.length - 1));
+    }, [markTutorialAsSeen, tutorialStepIndex, tutorialSteps.length]);
+
+    const handlePrevStep = useCallback(() => {
+        setTutorialStepIndex((prev) => Math.max(prev - 1, 0));
+    }, []);
 
     if (isLoadingProjects || !activeProjectId) {
         return <div className="app-container">Cargando...</div>;
@@ -188,14 +247,16 @@ export default function App() {
     return (
         <div className="app-container">
             <Toolbar
+                ref={toolbarRef}
                 onProjectsClick={() => setActiveModal("projects")}
                 onCharactersClick={() => setActiveModal("characters")}
                 onLocationsClick={() => setActiveModal("locations")}
             />
-            
+
             <EntityProvider value={{ characters, locations }}>
                 <div className="app-content">
                     <BeatSheet
+                        ref={beatSheetRef}
                         projectId={activeProjectId}
                         projectName={activeProjectName}
                     />
@@ -266,6 +327,15 @@ export default function App() {
                     onAdd={addLocation}
                     onUpdate={updateLocation}
                     onDelete={removeLocation}
+                />
+
+                <TutorialOverlay
+                    steps={tutorialSteps}
+                    currentStep={tutorialStepIndex}
+                    isOpen={isTutorialOpen}
+                    onNext={handleNextStep}
+                    onPrev={handlePrevStep}
+                    onSkip={markTutorialAsSeen}
                 />
             </EntityProvider>
         </div>

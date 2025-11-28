@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import UserMenu from "./UserMenu"; // <-- 1. Importar
 
 type Props = {
@@ -6,13 +7,13 @@ type Props = {
   onProjectsClick: () => void;
 };
 
-export default function Toolbar({
+const Toolbar = forwardRef<HTMLDivElement, Props>(({  
   onCharactersClick,
   onLocationsClick,
   onProjectsClick,
-}: Props) {
+}, ref) => {
   return (
-    <div className="app-toolbar">
+    <div className="app-toolbar" ref={ref}>
       <div className="toolbar__group">
         <button
           type="button"
@@ -46,4 +47,8 @@ export default function Toolbar({
       <UserMenu />
     </div>
   );
-}
+});
+
+Toolbar.displayName = "Toolbar";
+
+export default Toolbar;
