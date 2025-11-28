@@ -57,6 +57,7 @@ export default function App() {
     const boardRef = useRef<HTMLDivElement>(null);
     const toolbarRef = useRef<HTMLDivElement>(null);
     const beatSheetRef = useRef<HTMLDivElement>(null);
+    const footerRef = useRef<HTMLElement>(null); // 1. Nueva referencia para el footer
     
     // Referencias para solucionar los bugs
     const initializationRef = useRef(false); // Evita doble creación de proyecto
@@ -87,7 +88,7 @@ export default function App() {
         {
             title: "Hoja de beats",
             description: "Describe tu historia paso a paso. Cada campo tiene sugerencias y se guarda automáticamente al escribir.",
-            targetRef: beatSheetRef,
+            targetRef: beatSheetRef, // Aseguramos que apunte a la ref correcta
         },
         {
             title: "Tablero de tarjetas",
@@ -95,9 +96,9 @@ export default function App() {
             targetRef: boardRef,
         },
         {
-            title: "Personajes y locaciones",
-            description: "Abre los paneles desde la barra superior y vincula personajes o lugares a tus notas desde el editor de detalles.",
-            targetRef: boardRef,
+            title: "Comunidad y Contacto",
+            description: "Podés ver más trabajos míos en Github, enviarme un mail con sugerencias o contribuir económicamente con el proyecto.",
+            targetRef: footerRef,
         },
     ], []);
 
@@ -339,7 +340,8 @@ export default function App() {
                 />
             </EntityProvider>
 
-            <footer className="app-footer">
+            {/* 3. Asignar la referencia al footer */}
+            <footer className="app-footer" ref={footerRef}>
                 <a
                     href="https://github.com/SimonHolmquist"
                     target="_blank"
