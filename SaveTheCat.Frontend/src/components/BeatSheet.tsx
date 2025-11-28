@@ -15,33 +15,12 @@ const beatFieldsKeys: (keyof BeatSheetDto)[] = [
 
 const AUTOSAVE_DELAY = 1000;
 
-const beatSheetFields: { label: string; key: keyof BeatSheetDto; description?: string }[] = [
-  { label: "TÍTULO DEL PROYECTO:", key: "title", description: "El nombre oficial de tu guion." },
-  { label: "LOGLINE:", key: "logline", description: "Tu historia resumida en una sola frase atractiva." },
-  { label: "GÉNERO:", key: "genre", description: "El tipo de historia y sus reglas (ej: Un monstruo en casa)." },
-  { label: "FECHA:", key: "date", description: "Fecha de la última modificación." },
-  { label: "1. Imagen de apertura (1):", key: "openingImage", description: "Establece el tono, el estilo y el 'antes' del protagonista." },
-  { label: "2. Declaración del tema (5):", key: "themeStated", description: "Alguien (no el prota) plantea la pregunta o lección moral de la historia." },
-  { label: "3. Planteamiento (1-10):", key: "setUp", description: "Presenta al héroe, su mundo (tesis) y lo que le falta en su vida." },
-  { label: "4. Catalizador (12):", key: "catalyst", description: "El evento que cambia la vida del héroe para siempre. No hay vuelta atrás." },
-  { label: "5. Debate (12-25):", key: "debate", description: "¿Debe ir el héroe? ¿Se atreve? Duda antes de entrar al nuevo mundo." },
-  { label: "6. Transición al segundo acto (25):", key: "breakIntoTwo", description: "El héroe decide actuar y cruza el umbral hacia el mundo invertido (antítesis)." },
-  { label: "7. Trama B (30):", key: "bStory", description: "La historia de amor o amistad que porta el tema moral." },
-  { label: "8. Juegos y risas (30-35):", key: "funAndGames", description: "La promesa de la premisa. Escenas icónicas del género." },
-  { label: "9. Punto intermedio (55):", key: "midpoint", description: "Falsa victoria o falsa derrota. Las apuestas suben. El reloj empieza a correr." },
-  { label: "10. Los malos estrechan el cerco (55-75):", key: "badGuysCloseIn", description: "Las fuerzas antagonistas atacan interna y externamente." },
-  { label: "11. Todo está perdido (75):", key: "allIsLost", description: "Derrota aparente. Olor a muerte. El héroe pierde lo que creía querer." },
-  { label: "12. Noche oscura del alma (75-85):", key: "darkNightOfTheSoul", description: "El héroe se lamenta y luego halla la solución (la verdad)." },
-  { label: "13. Transición al tercer acto (85):", key: "breakIntoThree", description: "El héroe, habiendo aprendido el tema, decide luchar. Síntesis." },
-  { label: "14. Final (85-110):", key: "finale", description: "El héroe aplica la lección aprendida para vencer al malo y cambiar el mundo." },
-  { label: "15. Imagen de cierre (110):", key: "finalImage", description: "El espejo de la imagen de apertura. Muestra cuánto ha cambiado el héroe." },
-];
-
 const INPUT_STYLE = { backgroundColor: 'rgba(255, 255, 255, 0.5)' };
 
 const InfoTooltip = ({ text, direction = 'up' }: { text: string; direction?: 'up' | 'down' }) => {
   const [visible, setVisible] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -61,7 +40,7 @@ const InfoTooltip = ({ text, direction = 'up' }: { text: string; direction?: 'up
   const toggleTooltip = (e: React.MouseEvent) => {
     e.stopPropagation();
     setVisible(!visible);
-  }
+  };
 
   // Estilos dinámicos según dirección
   const tooltipStyles: React.CSSProperties = {
@@ -120,7 +99,7 @@ const InfoTooltip = ({ text, direction = 'up' }: { text: string; direction?: 'up
         onClick={toggleTooltip}
         className="tooltip-trigger"
         style={{ cursor: 'pointer', fontSize: '1.1em', background: 'transparent', border: 'none', padding: 0, lineHeight: 1, display: 'flex' }}
-        title="Click para ver información"
+        title={t('beatSheet.infoTooltip')}
       >
         ℹ️
       </button>
@@ -216,11 +195,11 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
   }, [beatSheet]);
 
   if (isLoading) {
-    return <div className="beat-sheet">t('common.loading')</div>;
+    return <div className="beat-sheet">{t('common.loading')}</div>;
   }
 
   if (!beatSheet) {
-    return <div className="beat-sheet">t('beatSheet.errorLoading')</div>;
+    return <div className="beat-sheet">{t('beatSheet.errorLoading')}</div>;
   }
 
   return (
@@ -230,7 +209,7 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
 
         let label = "";
         let description = "";
-        
+
         if (["title", "logline", "genre", "date"].includes(key)) {
           label = t(`beatSheet.${key}`);
           description = t(`beatSheet.desc_${key}`);
@@ -247,7 +226,7 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
           <div
             key={key}
             className="beat-sheet__item"
-            data-item-label={key === 'date' ? "fecha" : undefined}
+            data-item-label={key === 'date' ? t('beatSheet.date') : undefined}
             style={{
               backgroundColor: fieldColor,
               padding: '8px',
@@ -255,17 +234,11 @@ const BeatSheet = forwardRef<HTMLDivElement, Props>(({ projectId }: Props, ref) 
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+              <InfoTooltip text={description} direction={tooltipDirection} />
 
-              {/* Icono primero */}
-              {beatSheetFields.find(f => f.key === key)?.description && (
-                <InfoTooltip
-                  text={t(`beatSheet.beatDescriptions.${beatSheetFields.find(f => f.key === key)?.key}`)}
-                  direction={tooltipDirection}
-                />
-              )}
-
-              {/* Texto después */}
-              <label className="beat-sheet__label" style={{ marginRight: 0 }}>{label}</label>
+              <label className="beat-sheet__label" style={{ marginRight: 0 }} title={t('beatSheet.infoTooltip')}>
+                {label}
+              </label>
             </div>
 
             {isReadOnly ? (

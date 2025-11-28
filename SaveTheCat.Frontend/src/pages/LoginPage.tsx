@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -8,6 +9,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const { login } = useAuth();
   const { currentUser } = useAuth();
+  const { t } = useTranslation();
   
   if (currentUser) {
     return <Navigate to="/" replace />;
@@ -18,7 +20,7 @@ export default function LoginPage() {
     setError("");
 
     if (!email || !password) {
-      setError("Por favor, completa todos los campos.");
+      setError(t('auth.errors.requiredFields'));
       return;
     }
     
@@ -28,7 +30,7 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error(err);
       // --- Error real de la API ---
-      const errorMsg = err.response?.data?.message || "Error al iniciar sesión. Verifica tus credenciales.";
+      const errorMsg = err.response?.data?.message || t('auth.login.error');
       setError(errorMsg);
     }
   };
@@ -36,11 +38,11 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-form-container">
-        <h2>Iniciar Sesión</h2>
+        <h2>{t('auth.login.title')}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <p className="error-message">{error}</p>}
           <div className="form-group">
-            <label htmlFor="email">Email o Nickname</label>
+            <label htmlFor="email">{t('auth.common.emailOrNickname')}</label>
             <input
               type="text"
               id="email"
@@ -50,7 +52,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="password">{t('auth.common.password')}</label>
             <input
               type="password"
               id="password"
@@ -60,15 +62,15 @@ export default function LoginPage() {
             />
           </div>
           <button type="submit" className="auth-button">
-            Iniciar Sesión
+            {t('auth.login.submit')}
           </button>
         </form>
         <div className="auth-links">
           <Link to="/register" className="auth-link">
-            Registrarse
+            {t('auth.login.register')}
           </Link>
           <Link to="/forgot-password" className="auth-link">
-            ¿Has olvidado tu contraseña?
+            {t('auth.login.forgotPassword')}
           </Link>
         </div>
       </div>

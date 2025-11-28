@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import apiClient from "../api/apiClient"; 
+import apiClient from "../api/apiClient";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const { currentUser } = useAuth();
+  const { t } = useTranslation();
   
   if (currentUser) {
     return <Navigate to="/" replace />;
@@ -19,16 +21,14 @@ export default function ForgotPasswordPage() {
     setMessage("");
 
     if (!email) {
-      setError("Por favor, introduce tu email.");
+      setError(t('auth.errors.requiredFields'));
       return;
     }
 
     try {
       console.log("Enviando correo de reseteo a:", email);
       await apiClient.post("/auth/forgot-password", { email });
-      setMessage(
-        "Si existe una cuenta con este email, se ha enviado un correo con instrucciones."
-      );
+      setMessage(t('auth.forgotPassword.success'));
     } catch (err: any) {
       console.error(err);
       // --- Mensaje de error real ---
@@ -36,33 +36,31 @@ export default function ForgotPasswordPage() {
       // por razones de seguridad, así que el mensaje de éxito es suficiente.
       // Pero si la API falla por otra razón (ej. 500), mostramos un error genérico.
       if (!err.response?.data?.message) {
-        setError("Ocurrió un error inesperado. Inténtalo de nuevo.");
+        setError(t('auth.errors.unexpected'));
       }
       // Si el backend devuelve un error específico (ej. "Email no válido"), se mostraría aquí:
       // const errorMsg = err.response?.data?.message || "Error al enviar el correo.";
       // setError(errorMsg);
 
       // Por ahora, mantenemos el mensaje de éxito para ofuscar si el email existe
-       setMessage(
-        "Si existe una cuenta con este email, se ha enviado un correo con instrucciones."
-      );
+       setMessage(t('auth.forgotPassword.success'));
     }
   };
 
   return (
     <div className="auth-page">
       <div className="auth-form-container">
-        <h2>Recuperar Contraseña</h2>
+        <h2>{t('auth.forgotPassword.title')}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <p className="error-message">{error}</p>}
           {message && <p className="success-message">{message}</p>}
-          
+
           <p style={{ color: '#ccc', fontSize: '0.9em', textAlign: 'center' }}>
-            Introduce tu email y te enviaremos un enlace para reiniciar tu contraseña.
+            {t('auth.forgotPassword.description')}
           </p>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.common.email')}</label>
             <input
               type="email"
               id="email"
@@ -71,12 +69,12 @@ export default function ForgotPasswordPage() {
             />
           </div>
           <button type="submit" className="auth-button">
-            Enviar Correo
+            {t('auth.forgotPassword.submit')}
           </button>
         </form>
         <div className="auth-links">
           <Link to="/login" className="auth-link">
-            Volver a Iniciar Sesión
+            {t('auth.forgotPassword.backToLogin')}
           </Link>
         </div>
       </div>

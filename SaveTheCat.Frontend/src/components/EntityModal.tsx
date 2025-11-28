@@ -149,7 +149,7 @@ export default function EntityModal({
                 isOpen={deletingId !== null}
                 onCancel={handleCancelDelete}
                 onConfirm={handleConfirmDelete}
-                message={t('modals.confirmDeleteEntity', getEntityName(deletingId || ""))}
+                message={t('modals.confirmDeleteEntity', { name: getEntityName(deletingId || "") })}
             />
         </div>
     );

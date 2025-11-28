@@ -9,7 +9,12 @@ const resources = {
         add: "Añadir",
         edit: "Editar",
         close: "Cerrar",
-        delete: "Eliminar"
+        delete: "Eliminar",
+        save: "Guardar",
+        cancel: "Cancelar",
+        select: "Seleccionar",
+        loading: "Cargando...",
+        language: "Idioma",
       },
       toolbar: {
         projects: "Gestionar Proyectos",
@@ -20,9 +25,11 @@ const resources = {
           logout: "Cerrar Sesión",
           deleteAccount: "Eliminar Cuenta",
           confirmDelete: "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.",
-          accountDeleted: "Cuenta eliminada exitosamente."
-        }
+          accountDeleted: "Cuenta eliminada exitosamente.",
+          language: "Idioma / Language",
+        },
       },
+      initialProjectName: "Mi Primer Proyecto",
       beatSheet: {
         title: "TÍTULO DEL PROYECTO:",
         logline: "LOGLINE:",
@@ -32,6 +39,8 @@ const resources = {
         desc_logline: "Tu historia resumida en una sola frase atractiva.",
         desc_genre: "El tipo de historia y sus reglas (ej: Un monstruo en casa).",
         desc_date: "Fecha de la última modificación.",
+        infoTooltip: "Haz clic para ver información",
+        errorLoading: "Error al cargar la hoja de beats.",
         beats: {
           openingImage: "1. Imagen de apertura (1)",
           themeStated: "2. Declaración del tema (5)",
@@ -47,7 +56,7 @@ const resources = {
           darkNightOfTheSoul: "12. Noche oscura del alma (75-85)",
           breakIntoThree: "13. Transición al Acto 3 (85)",
           finale: "14. Final (85-110)",
-          finalImage: "15. Imagen de cierre (110)"
+          finalImage: "15. Imagen de cierre (110)",
         },
         beatDescriptions: {
           openingImage: "Establece el tono, el estilo y el 'antes' del protagonista.",
@@ -64,31 +73,29 @@ const resources = {
           darkNightOfTheSoul: "El héroe se lamenta y luego halla la solución (la verdad).",
           breakIntoThree: "El héroe, habiendo aprendido el tema, decide luchar. Síntesis.",
           finale: "El héroe aplica la lección aprendida para vencer al malo y cambiar el mundo.",
-          finalImage: "El espejo de la imagen de apertura. Muestra cuánto ha cambiado el héroe."
-        }
+          finalImage: "El espejo de la imagen de apertura. Muestra cuánto ha cambiado el héroe.",
+        },
       },
       board: {
         act1: "ACTO I\n(pp. 1-25)",
         act2a: "ACTO II\n(pp. 25-55)",
         act2b: "ACTO II\n(pp. 55-85)",
         act3: "ACTO III\n(pp. 85-110)",
-        newScene: "NUEVA ESCENA"
+        newScene: "NUEVA ESCENA",
       },
       modals: {
         manageProjects: "Gestionar Proyectos",
         newProjectPlaceholder: "Nombre del nuevo proyecto",
         manageCharacters: "Gestionar Personajes",
         manageLocations: "Gestionar Locaciones",
-        add: "Añadir",
-        save: "Guardar",
-        cancel: "Cancelar",
-        close: "Cerrar",
-        delete: "Eliminar",
-        edit: "Editar",
-        select: "Seleccionar",
+        characterPlaceholder: "Nombre del personaje",
+        locationPlaceholder: "Nombre de la locación",
         confirmDeleteTitle: "¿Estás seguro?",
         confirmDeleteMsg: "¿Estás seguro de que quieres eliminar \"{{name}}\"?",
-        activeSuffix: " (Activo)"
+        confirmDeleteEntity: "¿Estás seguro de que quieres eliminar \"{{name}}\"?",
+        confirmDeleteNoteDefault: "¿Eliminar esta nota?",
+        cannotDeleteLastProject: "No puedes eliminar el último proyecto.",
+        activeSuffix: " (Activo)",
       },
       noteDetail: {
         title: "Detalles de la Escena",
@@ -97,13 +104,25 @@ const resources = {
         emotionalChange: "CAMBIO EMOCIONAL",
         conflict: "CONFLICTO",
         beatLink: "VINCULAR A HOJA DE TRAMA",
+        changeCharge: "Cambiar carga",
         placeholders: {
           heading: "(INT. o EXT) - LOCACIÓN - TIEMPO",
           description: "¿Qué sucede en la escena?",
           emotional: "¿Qué cambio emocional ocurrió?",
-          conflict: "¿Cuál es el conflicto?"
+          conflict: "¿Cuál es el conflicto?",
         },
-        unassigned: "-- Sin Asignar (Nota Libre) --"
+        aria: {
+          sceneHeading: "Encabezado de escena",
+          emotional: "Descripción emocional",
+          conflict: "Conflicto",
+        },
+        unassigned: "-- Sin Asignar (Nota Libre) --",
+      },
+      note: {
+        deleteTooltip: "Eliminar nota",
+        hasDescription: "Tiene descripción",
+        hasConflict: "Tiene conflicto",
+        untitled: "Sin título",
       },
       tutorial: {
         steps: {
@@ -114,18 +133,96 @@ const resources = {
           board: "Tablero de tarjetas",
           boardDesc: "Haz clic en el fondo para crear tarjetas, arrástralas y haz doble clic para editar.",
           footer: "Comunidad",
-          footerDesc: "Enlaces al código, contacto y contribuciones."
+          footerDesc: "Enlaces al código, contacto y contribuciones.",
         },
         skip: "Omitir",
         prev: "Anterior",
         next: "Siguiente",
-        done: "¡Entendido!"
+        done: "¡Entendido!",
       },
       footer: {
         by: "Por Simon Holmquist©",
-        contribute: "Contribuir"
-      }
-    }
+        contribute: "Contribuir",
+      },
+      auth: {
+        errors: {
+          requiredFields: "Por favor, completa todos los campos.",
+          passwordMismatch: "Las contraseñas no coinciden.",
+          notAuthenticated: "No estás autenticado.",
+          unexpected: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+        },
+        validation: {
+          password: {
+            minLength: "La contraseña debe tener al menos 8 caracteres.",
+            lowercase: "Debe contener al menos una minúscula.",
+            uppercase: "Debe contener al menos una mayúscula.",
+            digit: "Debe contener al menos un dígito.",
+            special: "Debe contener al menos un caracter especial (ej: !@#$).",
+          },
+        },
+        common: {
+          emailOrNickname: "Email o Nickname",
+          email: "Email",
+          nickname: "Nickname",
+          password: "Contraseña",
+          confirmPassword: "Confirmar Contraseña",
+          newPassword: "Nueva Contraseña",
+          currentPassword: "Contraseña Actual",
+          submit: "Enviar",
+          backToApp: "Volver a la App",
+        },
+        login: {
+          title: "Iniciar Sesión",
+          submit: "Iniciar Sesión",
+          register: "Registrarse",
+          forgotPassword: "¿Has olvidado tu contraseña?",
+          error: "Error al iniciar sesión. Verifica tus credenciales.",
+        },
+        register: {
+          title: "Registrarse",
+          submit: "Crear Cuenta",
+          backToLogin: "¿Ya tienes cuenta? Inicia Sesión",
+          error: "Error al registrarse. Inténtalo de nuevo.",
+        },
+        forgotPassword: {
+          title: "Recuperar Contraseña",
+          description: "Introduce tu email y te enviaremos un enlace para reiniciar tu contraseña.",
+          submit: "Enviar Correo",
+          success: "Si existe una cuenta con este email, se ha enviado un correo con instrucciones.",
+          backToLogin: "Volver a Iniciar Sesión",
+          error: "Error al enviar el correo.",
+        },
+        resetPassword: {
+          title: "Establecer Nueva Contraseña",
+          otp: "OTP (Código del email)",
+          submit: "Guardar Contraseña",
+          invalidLink: "El enlace de reseteo es inválido o ha caducado.",
+          mismatch: "Las contraseñas no coinciden.",
+          success: "¡Contraseña cambiada con éxito! Serás redirigido a Iniciar Sesión.",
+          error: "Error al cambiar la contraseña. El enlace puede haber caducado.",
+        },
+        changePassword: {
+          title: "Cambiar Contraseña",
+          submit: "Guardar Cambios",
+          success: "¡Contraseña cambiada con éxito!",
+          error: "Error al cambiar la contraseña.",
+        },
+        verifyEmail: {
+          title: "Verifica tu Email",
+          description: "Introduce el código que recibiste en tu correo para verificar tu cuenta. (Si estás en modo de desarrollo, revisa la consola del backend para ver el enlace de verificación).",
+          submit: "Verificar Email",
+          backToLogin: "Ir a Iniciar Sesión",
+        },
+        verifyEmailConfirm: {
+          loading: "Verificando tu correo...",
+          successTitle: "Email Verificado",
+          successMessage: "Tu cuenta ha sido verificada con éxito.",
+          redirect: "Serás redireccionado a la aplicación en 5 segundos...",
+          errorTitle: "Error de Verificación",
+          errorMessage: "No se pudo verificar tu correo. El enlace puede ser inválido o haber caducado.",
+        },
+      },
+    },
   },
   en: {
     translation: {
@@ -133,7 +230,12 @@ const resources = {
         add: "Add",
         edit: "Edit",
         close: "Close",
-        delete: "Delete"
+        delete: "Delete",
+        save: "Save",
+        cancel: "Cancel",
+        select: "Select",
+        loading: "Loading...",
+        language: "Language",
       },
       toolbar: {
         projects: "Manage Projects",
@@ -144,9 +246,11 @@ const resources = {
           logout: "Logout",
           deleteAccount: "Delete Account",
           confirmDelete: "Are you sure you want to delete your account? This cannot be undone.",
-          accountDeleted: "Account successfully deleted."
-        }
+          accountDeleted: "Account successfully deleted.",
+          language: "Language / Idioma",
+        },
       },
+      initialProjectName: "My First Project",
       beatSheet: {
         title: "PROJECT TITLE:",
         logline: "LOGLINE:",
@@ -156,6 +260,8 @@ const resources = {
         desc_logline: "Your story summarized in one compelling sentence.",
         desc_genre: "The type of story and its rules (e.g., Monster in the House).",
         desc_date: "Last modification date.",
+        infoTooltip: "Click to see information",
+        errorLoading: "Error loading beat sheet.",
         beats: {
           openingImage: "1. Opening Image (1)",
           themeStated: "2. Theme Stated (5)",
@@ -171,7 +277,7 @@ const resources = {
           darkNightOfTheSoul: "12. Dark Night of the Soul (75-85)",
           breakIntoThree: "13. Break into Three (85)",
           finale: "14. Finale (85-110)",
-          finalImage: "15. Final Image (110)"
+          finalImage: "15. Final Image (110)",
         },
         beatDescriptions: {
           openingImage: "Sets the tone, style, and the 'before' snapshot of the hero.",
@@ -188,31 +294,29 @@ const resources = {
           darkNightOfTheSoul: "The hero wallows in misery, then finds the solution (the truth).",
           breakIntoThree: "The hero, having learned the theme, decides to fight. Synthesis.",
           finale: "The hero applies the lesson learned to defeat the bad guy and change the world.",
-          finalImage: "The mirror of the opening image. Shows how much the hero has changed."
-        }
+          finalImage: "The mirror of the opening image. Shows how much the hero has changed.",
+        },
       },
       board: {
         act1: "ACT I\n(pp. 1-25)",
         act2a: "ACT II\n(pp. 25-55)",
         act2b: "ACT II\n(pp. 55-85)",
         act3: "ACT III\n(pp. 85-110)",
-        newScene: "NEW SCENE"
+        newScene: "NEW SCENE",
       },
       modals: {
         manageProjects: "Manage Projects",
         newProjectPlaceholder: "New project name",
         manageCharacters: "Manage Characters",
         manageLocations: "Manage Locations",
-        add: "Add",
-        save: "Save",
-        cancel: "Cancel",
-        close: "Close",
-        delete: "Delete",
-        edit: "Edit",
-        select: "Select",
+        characterPlaceholder: "Character name",
+        locationPlaceholder: "Location name",
         confirmDeleteTitle: "Are you sure?",
         confirmDeleteMsg: "Are you sure you want to delete \"{{name}}\"?",
-        activeSuffix: " (Active)"
+        confirmDeleteEntity: "Are you sure you want to delete \"{{name}}\"?",
+        confirmDeleteNoteDefault: "Delete this note?",
+        cannotDeleteLastProject: "You cannot delete the last project.",
+        activeSuffix: " (Active)",
       },
       noteDetail: {
         title: "Scene Details",
@@ -221,13 +325,25 @@ const resources = {
         emotionalChange: "EMOTIONAL CHANGE",
         conflict: "CONFLICT",
         beatLink: "LINK TO BEAT SHEET",
+        changeCharge: "Change charge",
         placeholders: {
           heading: "(INT. or EXT) - LOCATION - TIME",
           description: "What happens in the scene?",
           emotional: "What emotional change occurred?",
-          conflict: "What is the conflict?"
+          conflict: "What is the conflict?",
         },
-        unassigned: "-- Unassigned (Free Note) --"
+        aria: {
+          sceneHeading: "Scene heading",
+          emotional: "Emotional description",
+          conflict: "Conflict",
+        },
+        unassigned: "-- Unassigned (Free Note) --",
+      },
+      note: {
+        deleteTooltip: "Delete note",
+        hasDescription: "Has description",
+        hasConflict: "Has conflict",
+        untitled: "Untitled",
       },
       tutorial: {
         steps: {
@@ -238,19 +354,97 @@ const resources = {
           board: "Corkboard",
           boardDesc: "Click background to create cards, drag to reorder, double-click to edit details.",
           footer: "Community",
-          footerDesc: "Links to code, contact, and contributions."
+          footerDesc: "Links to code, contact, and contributions.",
         },
         skip: "Skip",
         prev: "Previous",
         next: "Next",
-        done: "Got it!"
+        done: "Got it!",
       },
       footer: {
         by: "By Simon Holmquist©",
-        contribute: "Contribute"
-      }
-    }
-  }
+        contribute: "Contribute",
+      },
+      auth: {
+        errors: {
+          requiredFields: "Please fill in all fields.",
+          passwordMismatch: "Passwords do not match.",
+          notAuthenticated: "You are not authenticated.",
+          unexpected: "An unexpected error occurred. Please try again.",
+        },
+        validation: {
+          password: {
+            minLength: "Password must be at least 8 characters long.",
+            lowercase: "Must contain at least one lowercase letter.",
+            uppercase: "Must contain at least one uppercase letter.",
+            digit: "Must contain at least one digit.",
+            special: "Must contain at least one special character (e.g., !@#$).",
+          },
+        },
+        common: {
+          emailOrNickname: "Email or Nickname",
+          email: "Email",
+          nickname: "Nickname",
+          password: "Password",
+          confirmPassword: "Confirm Password",
+          newPassword: "New Password",
+          currentPassword: "Current Password",
+          submit: "Submit",
+          backToApp: "Back to App",
+        },
+        login: {
+          title: "Log In",
+          submit: "Log In",
+          register: "Register",
+          forgotPassword: "Forgot your password?",
+          error: "Error logging in. Please check your credentials.",
+        },
+        register: {
+          title: "Register",
+          submit: "Create Account",
+          backToLogin: "Already have an account? Log In",
+          error: "Error registering. Please try again.",
+        },
+        forgotPassword: {
+          title: "Recover Password",
+          description: "Enter your email and we'll send you a link to reset your password.",
+          submit: "Send Email",
+          success: "If an account exists with this email, a message has been sent with instructions.",
+          backToLogin: "Back to Log In",
+          error: "Error sending the email.",
+        },
+        resetPassword: {
+          title: "Set New Password",
+          otp: "OTP (Email code)",
+          submit: "Save Password",
+          invalidLink: "The reset link is invalid or has expired.",
+          mismatch: "Passwords do not match.",
+          success: "Password successfully changed! You will be redirected to Log In.",
+          error: "Error changing the password. The link may have expired.",
+        },
+        changePassword: {
+          title: "Change Password",
+          submit: "Save Changes",
+          success: "Password successfully changed!",
+          error: "Error changing the password.",
+        },
+        verifyEmail: {
+          title: "Verify Your Email",
+          description: "Enter the code you received to verify your account. (If you're in development mode, check the backend console for the verification link).",
+          submit: "Verify Email",
+          backToLogin: "Go to Log In",
+        },
+        verifyEmailConfirm: {
+          loading: "Verifying your email...",
+          successTitle: "Email Verified",
+          successMessage: "Your account has been successfully verified.",
+          redirect: "You will be redirected to the app in 5 seconds...",
+          errorTitle: "Verification Error",
+          errorMessage: "We couldn't verify your email. The link may be invalid or expired.",
+        },
+      },
+    },
+  },
 };
 
 i18n
@@ -258,10 +452,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'es', // Idioma por defecto si falla la detección
+    fallbackLng: 'es',
     interpolation: {
-      escapeValue: false 
-    }
+      escapeValue: false,
+    },
   });
 
 export default i18n;

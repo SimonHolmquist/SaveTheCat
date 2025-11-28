@@ -48,10 +48,10 @@ export default function StickyNote({
             className={`note ${isDragging ? "note--dragging" : ""} ${isSelected ? "note--selected" : ""}`}
             style={{ left: note.x, top: note.y, backgroundColor: note.color }}
             onMouseDown={onDragStart} // Inicia el arrastre
-            onClick={handleClick} 
+            onClick={handleClick}
             onDoubleClick={handleDoubleClick}
             role="button"
-            aria-label={`Nota: ${note.sceneHeading || "Sin título"}`}
+            aria-label={`Nota: ${note.sceneHeading || t('note.untitled')}`}
         >
             <button
                 type="button"

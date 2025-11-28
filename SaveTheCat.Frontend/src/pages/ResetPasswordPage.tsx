@@ -1,17 +1,8 @@
-import React, { useState, useMemo } from "react"; // <-- 1. Importar useMemo
+import React, { useState, useMemo, useCallback } from "react"; // <-- 1. Importar useMemo
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom"; // <-- 2. Importar useSearchParams
 import apiClient from "../api/apiClient"; // <-- 3. Importar apiClient
 import { useAuth } from "../context/AuthContext";
-
-// (La función validatePassword sigue igual)
-const validatePassword = (password: string): string | null => {
-  if (password.length < 8) return "La contraseña debe tener al menos 8 caracteres.";
-  if (!/[a-z]/.test(password)) return "Debe contener al menos una minúscula.";
-  if (!/[A-Z]/.test(password)) return "Debe contener al menos una mayúscula.";
-  if (!/\d/.test(password)) return "Debe contener al menos un dígito.";
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password)) return "Debe contener al menos un caracter especial.";
-  return null;
-};
+import { useTranslation } from "react-i18next";
 
 export default function ResetPasswordPage() {
   // const [otp, setOtp] = useState(""); // <-- 4. ELIMINAR ESTADO DE OTP
@@ -20,6 +11,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { t } = useTranslation();
   
   if (currentUser) {
     return <Navigate to="/" replace />;
@@ -32,19 +24,28 @@ export default function ResetPasswordPage() {
   }), [searchParams]);
   // --- Fin de la lectura ---
 
+  const validatePassword = useCallback((pwd: string): string | null => {
+    if (pwd.length < 8) return t('auth.validation.password.minLength');
+    if (!/[a-z]/.test(pwd)) return t('auth.validation.password.lowercase');
+    if (!/[A-Z]/.test(pwd)) return t('auth.validation.password.uppercase');
+    if (!/\d/.test(pwd)) return t('auth.validation.password.digit');
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(pwd)) return t('auth.validation.password.special');
+    return null;
+  }, [t]);
+
   const handleSubmit = async (e: React.FormEvent) => { // <-- 6. Convertir a async
     e.preventDefault();
     setError("");
 
     // if (!otp || !password || !confirmPassword) { // <-- 7. Quitar OTP de la validación
     if (!password || !confirmPassword) {
-      setError("Por favor, completa todos los campos.");
+      setError(t('auth.errors.requiredFields'));
       return;
     }
 
     // --- 8. Validar que tenemos token y email ---
     if (!token || !email) {
-      setError("El enlace de reseteo es inválido o ha caducado.");
+      setError(t('auth.resetPassword.invalidLink'));
       return;
     }
     // --- Fin de la validación ---
@@ -56,7 +57,7 @@ export default function ResetPasswordPage() {
     }
 
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setError(t('auth.resetPassword.mismatch'));
       return;
     }
 
@@ -65,13 +66,13 @@ export default function ResetPasswordPage() {
       console.log("Cambiando contraseña para:", email);
       const resetDto = { email, token, newPassword: password };
       await apiClient.post("/auth/reset-password", resetDto);
-      
-      alert("¡Contraseña cambiada con éxito! Serás redirigido a Iniciar Sesión.");
+
+      alert(t('auth.resetPassword.success'));
       navigate("/login");
 
     } catch (err: any) {
       console.error(err);
-      const errorMsg = err.response?.data?.message || "Error al cambiar la contraseña. El enlace puede haber caducado.";
+      const errorMsg = err.response?.data?.message || t('auth.resetPassword.error');
       setError(errorMsg);
     }
     // --- Fin de la lógica de API ---
@@ -80,7 +81,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="auth-page">
       <div className="auth-form-container">
-        <h2>Establecer Nueva Contraseña</h2>
+        <h2>{t('auth.resetPassword.title')}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <p className="error-message">{error}</p>}
           
@@ -97,7 +98,7 @@ export default function ResetPasswordPage() {
           */}
 
           <div className="form-group">
-            <label htmlFor="password">Nueva Contraseña</label>
+            <label htmlFor="password">{t('auth.common.newPassword')}</label>
             <input
               type="password"
               id="password"
@@ -106,7 +107,7 @@ export default function ResetPasswordPage() {
             />
           </div>
            <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmar Nueva Contraseña</label>
+            <label htmlFor="confirmPassword">{t('auth.common.confirmPassword')}</label>
             <input
               type="password"
               id="confirmPassword"
@@ -115,7 +116,7 @@ export default function ResetPasswordPage() {
             />
           </div>
           <button type="submit" className="auth-button">
-            Guardar Contraseña
+            {t('auth.resetPassword.submit')}
           </button>
         </form>
       </div>

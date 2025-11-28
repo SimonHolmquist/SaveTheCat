@@ -88,21 +88,21 @@ export default function App() {
             targetRef: toolbarRef,
         },
         {
-            title: "Hoja de beats",
-            description: "Describe tu historia paso a paso. Cada campo tiene sugerencias y se guarda automáticamente al escribir.",
-            targetRef: beatSheetRef, // Aseguramos que apunte a la ref correcta
+            title: t('tutorial.steps.beatSheet'),
+            description: t('tutorial.steps.beatSheetDesc'),
+            targetRef: beatSheetRef,
         },
         {
-            title: "Tablero de tarjetas",
-            description: "Haz clic en el fondo para crear una tarjeta, arrástrala para ordenar las escenas y haz doble clic para editarla con más detalle.",
+            title: t('tutorial.steps.board'),
+            description: t('tutorial.steps.boardDesc'),
             targetRef: boardRef,
         },
         {
-            title: "Comunidad y Contacto",
-            description: "Podés ver más trabajos míos en Github, enviarme un mail con sugerencias o contribuir económicamente con el proyecto.",
+            title: t('tutorial.steps.footer'),
+            description: t('tutorial.steps.footerDesc'),
             targetRef: footerRef,
         },
-    ], []);
+    ], [t]);
 
     useEffect(() => {
         if (isLoadingProjects) return;
@@ -311,8 +311,8 @@ export default function App() {
                 <EntityModal
                     isOpen={activeModal === "characters"}
                     onClose={() => setActiveModal(null)}
-                    title="Gestionar Personajes"
-                    placeholderName="Nombre del personaje"
+                    title={t('modals.manageCharacters')}
+                    placeholderName={t('modals.characterPlaceholder')}
                     entities={characters}
                     onAdd={addCharacter}
                     onUpdate={updateCharacter}
@@ -322,8 +322,8 @@ export default function App() {
                 <EntityModal
                     isOpen={activeModal === "locations"}
                     onClose={() => setActiveModal(null)}
-                    title="Gestionar Locaciones"
-                    placeholderName="Nombre de la locación"
+                    title={t('modals.manageLocations')}
+                    placeholderName={t('modals.locationPlaceholder')}
                     entities={locations}
                     onAdd={addLocation}
                     onUpdate={updateLocation}

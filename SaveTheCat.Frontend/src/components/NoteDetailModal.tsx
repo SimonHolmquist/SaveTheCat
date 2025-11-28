@@ -79,7 +79,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                         onChange={handleSceneHeadingChange}
                         onInput={handleInput}
                         placeholder={t('noteDetail.placeholders.heading')}
-                        ariaLabel="Encabezado de escena"
+                        ariaLabel={t('noteDetail.aria.sceneHeading')}
                         onOpenLocationsModal={onOpenLocationsModal}
                         onAddLocation={onAddLocation}
                     />
@@ -103,7 +103,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                                     type="button"
                                     className={buttonClass}
                                     onClick={handleChargeClick}
-                                    title="Cambiar carga"
+                                    title={t('noteDetail.changeCharge')}
                                 >
                                     {note.emotionalCharge}
                                 </button>
@@ -114,7 +114,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                                     onChange={(val) => handleTextAreaChange(val, "emotionalDescription")}
                                     onInput={handleInput}
                                     placeholder={t('noteDetail.placeholders.emotional')}
-                                    ariaLabel="Descripción emocional"
+                                    ariaLabel={t('noteDetail.aria.emotional')}
                                 />
                             </div>
                         </div>
@@ -130,7 +130,7 @@ export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpe
                             onChange={(val) => handleTextAreaChange(val, "conflict")}
                             onInput={handleInput}
                             placeholder={t('noteDetail.placeholders.conflict')}
-                            ariaLabel="Conflicto"
+                            ariaLabel={t('noteDetail.aria.conflict')}
                         />
                     </div>
                 </div>

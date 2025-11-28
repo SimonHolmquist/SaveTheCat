@@ -76,7 +76,7 @@ export default function UserMenu() {
             role="menuitem"
             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           >
-            <span>Idioma / Language</span>
+            <span>{t('toolbar.userMenu.language')}</span>
             <span>
               <span style={{ fontWeight: i18n.language.startsWith('es') ? 'bold' : 'normal' }}>ES</span>
               {' / '}
