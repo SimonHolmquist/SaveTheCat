@@ -1,6 +1,6 @@
 :root {
     --toolbar-height: 48px;
-    --footer-height: 60px;
+    --footer-height: 36px;
     --beatsheet-width: calc(100vw / 6);
 }
 
