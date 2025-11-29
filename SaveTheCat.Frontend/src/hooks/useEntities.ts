@@ -14,7 +14,7 @@ export function useEntities<T extends Entity>(
   // 2. Efecto de carga: se dispara cuando el projectId o el tipo de entidad cambian
   useEffect(() => {
     // No cargar nada si no hay un proyecto activo
-    if (!projectId) {
+    if (!projectId || projectId === "default") {
       setEntities([]);
       return;
     }

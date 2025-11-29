@@ -13,7 +13,7 @@ export function useStickyNotes(projectId: string | null) {
 
   // 2. Efecto de carga: se dispara cuando el projectId cambia
   useEffect(() => {
-    if (!projectId) {
+    if (!projectId || projectId === "default") {
       setNotes([]);
       return;
     }

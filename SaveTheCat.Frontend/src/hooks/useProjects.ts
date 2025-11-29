@@ -32,9 +32,13 @@ export function useProjects() {
         setProjects(loadedProjects);
 
         const activeIdKey = `ACTIVE_PROJECT_ID_${userId}`;
-        let activeId = localStorage.getItem(activeIdKey);
-        if (!activeId || !loadedProjects.some(p => p.id === activeId)) {
-          activeId = loadedProjects[0]?.id ?? null;
+        let storedId = localStorage.getItem(activeIdKey);
+        let activeId = null;
+        
+        if (storedId && storedId !== "default" && loadedProjects.some(p => p.id === storedId)) {
+            activeId = storedId;
+        } else if (loadedProjects.length > 0) {
+            activeId = loadedProjects[0].id;
         }
         
         setActiveProjectId(activeId);

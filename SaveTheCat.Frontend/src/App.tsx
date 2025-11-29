@@ -28,7 +28,7 @@ export default function App() {
         setActiveProject
     } = useProjects();
 
-    const activeId = activeProjectId ?? "default";
+    const activeId = activeProjectId; 
     const activeProjectName = projects.find(p => p.id === activeProjectId)?.name;
 
     const {
