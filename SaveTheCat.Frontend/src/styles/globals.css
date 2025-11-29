@@ -761,6 +761,20 @@
   background-color: #242424;
 }
 
+.auth-form-container h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #ffffff;
+}
+
+.auth-logo {
+  display: block;
+  margin: 0 auto 16px auto; /* Centrado y separado del título */
+  width: 80px;              /* Tamaño ajustado */
+  height: auto;
+}
+
 .auth-form-container {
   background-color: #333; 
   padding: 32px 40px;

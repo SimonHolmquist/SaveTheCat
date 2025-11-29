@@ -13,6 +13,7 @@ export default function VerifyEmailPage() {
   return (
     <div className="auth-page">
       <div className="auth-form-container" style={{ textAlign: 'center' }}>
+        <img src="/SaveTheCatBoardIcon.png" alt="Logo" className="auth-logo" />
         <h2>{t('auth.verifyEmail.title')}</h2>
         <p style={{ color: '#ccc' }}>
           {t('auth.verifyEmail.description')}

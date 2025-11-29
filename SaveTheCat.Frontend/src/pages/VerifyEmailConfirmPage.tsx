@@ -73,6 +73,7 @@ export default function VerifyEmailConfirmPage() {
     return (
       <div className="auth-page">
         <div className="auth-form-container" style={{ textAlign: 'center' }}>
+          <img src="/SaveTheCatBoardIcon.png" alt="Logo" className="auth-logo" />
           <h2>{t('auth.verifyEmailConfirm.loading')}</h2>
         </div>
       </div>
@@ -83,6 +84,7 @@ export default function VerifyEmailConfirmPage() {
      return (
       <div className="auth-page">
         <div className="auth-form-container" style={{ textAlign: 'center' }}>
+          <img src="/SaveTheCatBoardIcon.png" alt="Logo" className="auth-logo" />
           <h2>{t('auth.verifyEmailConfirm.errorTitle')}</h2>
           <p style={{ color: '#ffab91' }}>
             {t('auth.verifyEmailConfirm.errorMessage')}
@@ -96,6 +98,7 @@ export default function VerifyEmailConfirmPage() {
   return (
     <div className="auth-page">
       <div className="auth-form-container" style={{ textAlign: 'center' }}>
+        <img src="/SaveTheCatBoardIcon.png" alt="Logo" className="auth-logo" />
         <h2 style={{ color: '#a5d6a7' }}>{t('auth.verifyEmailConfirm.successTitle')}</h2>
         <p style={{ color: '#ccc' }}>
           {t('auth.verifyEmailConfirm.successMessage')}

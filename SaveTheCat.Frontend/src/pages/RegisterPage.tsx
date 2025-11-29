@@ -76,6 +76,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-form-container">
+        <img src="/SaveTheCatBoardIcon.png" alt="Logo" className="auth-logo" />
         <h2>{t('auth.register.title')}</h2>
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <p className="error-message">{error}</p>}
