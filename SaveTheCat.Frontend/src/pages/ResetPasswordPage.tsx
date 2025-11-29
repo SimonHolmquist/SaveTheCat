@@ -12,17 +12,18 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { t } = useTranslation();
-  
-  if (currentUser) {
-    return <Navigate to="/" replace />;
-  }
-  // --- 5. Leer token y email desde la URL ---
+
+  // Mantén todos los hooks en el tope del componente para evitar desalineación
+  // cuando el estado de autenticación cambie entre renderizados.
   const [searchParams] = useSearchParams();
   const { token, email } = useMemo(() => ({
     token: searchParams.get("token"),
     email: searchParams.get("email"),
   }), [searchParams]);
-  // --- Fin de la lectura ---
+
+  if (currentUser) {
+    return <Navigate to="/" replace />;
+  }
 
   const validatePassword = useCallback((pwd: string): string | null => {
     if (pwd.length < 8) return t('auth.validation.password.minLength');
