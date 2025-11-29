@@ -18,8 +18,9 @@ type Props = {
 const CHARGES: EmotionalCharge[] = ["+/-", "-/+", "+/+", "-/-"];
 
 export default function NoteDetailModal({ isOpen, onClose, note, onUpdate, onOpenLocationsModal, onAddLocation }: Props) {
-    if (!isOpen || !note) return null;
     const { t } = useTranslation()
+    
+    if (!isOpen || !note) return null;
     
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {

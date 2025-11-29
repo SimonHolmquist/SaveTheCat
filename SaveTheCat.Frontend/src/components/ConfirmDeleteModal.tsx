@@ -9,11 +9,12 @@ type Props = {
 };
 
 export default function ConfirmDeleteModal({ isOpen, onConfirm, onCancel, message }: Props) {
+    const { t } = useTranslation();
+    
     if (!isOpen) {
         return null;
     }
 
-    const { t } = useTranslation();
 
     const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();

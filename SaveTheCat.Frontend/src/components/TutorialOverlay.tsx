@@ -80,6 +80,7 @@ export default function TutorialOverlay({
   onPrev,
   onSkip,
 }: Props) {
+  const { t } = useTranslation();
   const [spotlight, setSpotlight] = useState<Spotlight | null>(null);
 
   const activeStep = useMemo(() => steps[currentStep] ?? steps[steps.length - 1], [currentStep, steps]);
@@ -125,7 +126,7 @@ export default function TutorialOverlay({
   if (!isOpen || !steps.length || !activeStep) return null;
 
   const isLastStep = currentStep >= steps.length - 1;
-  const { t } = useTranslation();
+ 
 
   return (
     <div className="tutorial-overlay" role="dialog" aria-modal="true" aria-label={t('tutorial.ariaLabel')}>
