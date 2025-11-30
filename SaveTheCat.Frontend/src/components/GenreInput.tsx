@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 
-const { t } = useTranslation()
-
 const SAVE_THE_CAT_GENRES = [
     { key: "monsters" },
     { key: "fleece" },
@@ -15,12 +13,6 @@ const SAVE_THE_CAT_GENRES = [
     { key: "intern" },
     { key: "super" }
 ];
-
-// Helper para validar
-const isValidGenre = (text: string) => {
-    const upperText = text.toUpperCase().trim();
-    return SAVE_THE_CAT_GENRES.some(g => t(`genres.${g.key}`) === upperText);
-};
 
 const autoGrow = (element: HTMLTextAreaElement | null) => {
     if (element) {
@@ -38,6 +30,13 @@ type Props = {
 };
 
 export default function GenreInput({ value, onChange, onInput, ariaLabel, style }: Props) {
+    const { t } = useTranslation();
+
+    const isValidGenre = (text: string) => {
+        const upperText = text.toUpperCase().trim();
+        return SAVE_THE_CAT_GENRES.some(g => t(`genres.${g.key}`) === upperText);
+    };
+
     const [inputValue, setInputValue] = useState(value);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
