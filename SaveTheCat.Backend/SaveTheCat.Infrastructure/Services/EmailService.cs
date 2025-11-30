@@ -22,7 +22,7 @@ public class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
             Html = $@"
                 <html>
                     <body>
-                        <h1>Hola {user.Nickname},</h1>
+                        <h3>Hola {user.Nickname},</h3>
                         <p>Has solicitado restablecer tu contraseña. Haz clic abajo:</p>
                         <p><a href='{resetLink}'>Restablecer mi contraseña</a></p>
                     </body>
