@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 
-const { t } = useTranslation()
+// Eliminado de aquí: const { t } = useTranslation()
 
 const SAVE_THE_CAT_GENRES = [
     { key: "monsters" },
@@ -15,12 +15,6 @@ const SAVE_THE_CAT_GENRES = [
     { key: "intern" },
     { key: "super" }
 ];
-
-// Helper para validar
-const isValidGenre = (text: string) => {
-    const upperText = text.toUpperCase().trim();
-    return SAVE_THE_CAT_GENRES.some(g => t(`genres.${g.key}`) === upperText);
-};
 
 const autoGrow = (element: HTMLTextAreaElement | null) => {
     if (element) {
@@ -38,6 +32,9 @@ type Props = {
 };
 
 export default function GenreInput({ value, onChange, onInput, ariaLabel, style }: Props) {
+    // 1. MOVIDO AQUÍ: El hook se llama dentro del componente
+    const { t } = useTranslation(); 
+    
     const [inputValue, setInputValue] = useState(value);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
@@ -45,12 +42,18 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel, style 
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+    // 2. MOVIDO O ADAPTADO: isValidGenre ahora tiene acceso a 't'
+    const isValidGenre = (text: string) => {
+        const upperText = text.toUpperCase().trim();
+        // Usamos el 't' del hook
+        return SAVE_THE_CAT_GENRES.some(g => t(`genres.${g.key}`).toUpperCase() === upperText);
+    };
+
     useEffect(() => {
-        // Sincroniza el estado local si el prop (valor guardado) cambia
         if (value !== inputValue) {
             setInputValue(value);
         }
-    }, [value]); // No incluir 'inputValue' aquí
+    }, [value]);
 
     useEffect(() => {
         autoGrow(textareaRef.current);
@@ -59,11 +62,9 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel, style 
     const updateSuggestions = (text: string) => {
         const textUpper = text.toUpperCase();
         if (text.trim() === "") {
-            // Si está vacío, muestra todos
             setSuggestions(SAVE_THE_CAT_GENRES.map(g => g.key));
             setShowSuggestions(true);
         } else {
-            // Filtra mientras escribe
             const filtered = SAVE_THE_CAT_GENRES.filter(g =>
                 t(`genres.${g.key}`).toUpperCase().startsWith(textUpper)
             );
@@ -75,7 +76,6 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel, style 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newText = e.target.value;
-        // BUG 4 FIX: Solo actualiza el estado local, no llama a onChange
         setInputValue(newText);
         updateSuggestions(newText);
     };
@@ -105,9 +105,11 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel, style 
     };
 
     const selectSuggestion = (suggestion: string) => {
-        // BUG 4 FIX: Al seleccionar, SÍ llamamos a onChange para guardar
+        // Al seleccionar la clave (ej: "monsters"), guardamos eso directamente o 
+        // podrías querer guardar el valor traducido. Tu lógica original guardaba la clave "suggestion"
+        // que viene del .map(g => g.key) en updateSuggestions.
         setInputValue(suggestion);
-        onChange(suggestion); // <--- Guarda el valor
+        onChange(suggestion);
         setShowSuggestions(false);
         setActiveSuggestionIndex(0);
         textareaRef.current?.focus();
@@ -115,19 +117,20 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel, style 
 
     const handleBlur = () => {
         setTimeout(() => {
-            // BUG 4 FIX: Al salir, valida el texto.
             const trimmedValue = inputValue.trim();
             if (isValidGenre(trimmedValue)) {
-                // Si es válido, lo guarda (y formatea)
-                const validGenre = SAVE_THE_CAT_GENRES.find(g => t(`genres.${g.key}`).toUpperCase() === trimmedValue.toUpperCase())?.key || trimmedValue;
-                setInputValue(validGenre);
-                onChange(validGenre);
+                // Buscamos la key original basándonos en el texto traducido si el usuario lo escribió a mano
+                const validGenreKey = SAVE_THE_CAT_GENRES.find(g => 
+                    t(`genres.${g.key}`).toUpperCase() === trimmedValue.toUpperCase()
+                )?.key || trimmedValue;
+                
+                setInputValue(validGenreKey);
+                onChange(validGenreKey);
             } else {
-                // Si no es válido, revierte al valor original guardado
                 setInputValue(value);
             }
             setShowSuggestions(false);
-        }, 150); // Retraso para permitir clic en sugerencias
+        }, 150);
     };
 
     return (
@@ -137,7 +140,7 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel, style 
                 className="beat-sheet__input"
                 style={style}
                 rows={1}
-                value={inputValue}
+                value={inputValue} // Aquí podrías querer mostrar el valor traducido usando t(`genres.${inputValue}`) si inputValue es una key
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 onBlur={handleBlur}
@@ -148,14 +151,15 @@ export default function GenreInput({ value, onChange, onInput, ariaLabel, style 
             />
             {showSuggestions && suggestions.length > 0 && (
                 <ul className="input-suggestions__list">
-                    {suggestions.map((suggestion, index) => (
+                    {suggestions.map((suggestionKey, index) => (
                         <li
-                            key={suggestion}
+                            key={suggestionKey}
                             className={`input-suggestions__item ${index === activeSuggestionIndex ? "input-suggestions__item--active" : ""
                                 }`}
-                            onMouseDown={() => selectSuggestion(suggestion)}
+                            onMouseDown={() => selectSuggestion(suggestionKey)}
                         >
-                            {suggestion}
+                            {/* Mostramos el texto traducido en la lista */}
+                            {t(`genres.${suggestionKey}`)}
                         </li>
                     ))}
                 </ul>
