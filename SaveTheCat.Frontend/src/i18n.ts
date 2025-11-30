@@ -222,6 +222,18 @@ const resources = {
           errorMessage: "No se pudo verificar tu correo. El enlace puede ser inválido o haber caducado.",
         },
       },
+      genres: {
+        monsters: "Un monstruo en casa",
+        fleece: "El vellocino de oro",
+        lamp: "La lámpara maravillosa",
+        problem: "Un tipo con un problema",
+        rites: "Ritos de iniciación",
+        love: "Amor de colegas",
+        why: "¿Por qué lo hizo?",
+        triumph: "El triunfo del tonto",
+        intern: "Soy un interno",
+        super: "Superhéroes"
+      }
     },
   },
   en: {
@@ -443,6 +455,18 @@ const resources = {
           errorMessage: "We couldn't verify your email. The link may be invalid or expired.",
         },
       },
+      genres: {
+        monsters: "A Monster in the House",
+        fleece: "The Golden Fleece",
+        lamp: "The Magic Lamp",
+        problem: "A Guy with a Problem",
+        rites: "Rites of Passage",
+        love: "Colleague Love",
+        why: "Why Did He Do It?",
+        triumph: "The Triumph of the Fool",
+        intern: "I'm an Intern",
+        super: "Superheroes"
+      }
     },
   },
 };
