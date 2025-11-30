@@ -50,7 +50,7 @@ public class EmailService(IOptions<EmailSettings> emailSettings) : IEmailService
             Html = $@"
                 <html>
                     <body>
-                        <h1>Hola {user.Nickname},</h1>
+                        <h3>Hola {user.Nickname},</h3>
                         <p>Gracias por registrarte. Verifica tu cuenta aquí:</p>
                         <p><a href='{verificationLink}'>Verificar mi correo</a></p>
                     </body>
